@@ -1,0 +1,7 @@
+name = "Perl-Tidy-Guarantee"
+badges = ["github-actions/test.yml"]
+authority="cpan:DEENEWCUM"
+
+module_maker="ModuleBuildTiny"
+static_install = "auto"
+
