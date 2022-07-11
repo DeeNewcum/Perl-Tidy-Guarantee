@@ -27,15 +27,15 @@ L<Perl::Tidy> I<tries> to only make cosmetic changes to your code. Unfortunately
 guarantees about whether it can absolutely avoid making any functional changes. If you have a lot of
 poorly-indented production code, like I do, that's a problem.
 
-Perl::Tidy::Guarantee does some extra checks after Perl::Tidy is finished, and so is able to provide
-you that guarantee.
+Perl::Tidy::Guarantee performs some extra checks after Perl::Tidy is finished, and so is able to
+provide you that guarantee.
 
 =head1 SYNOPSIS
 
     use Perl::Tidy::Guarantee;
 
-    # compare() will die if a non-cosmetic change is detected
-    Perl::Tidy::Guarantee::compare($code_before_tidying, $code_after_tidying);
+    # tidy_compare() will die if a non-cosmetic change is detected
+    tidy_compare($code_before_tidying, $code_after_tidying);
 
 =head1 DESCRIPTION
 
@@ -43,8 +43,9 @@ A guarantee is provided by doing this:
 
 Perl::Tidy is run on the desired piece of code. Both before and after running Perl::Tidy, this
 module passes your code through L<B::Concise>, which is a module that generates a textual
-representation of Perl's internal OP tree. If that OP tree has changed (excluding COPs, which are
-Control OPs, which contain line number information used for debugging), then an error is thrown.
+representation of Perl's internal L<OP tree|perloptree>. If that OP tree has changed (excluding
+COPs, which are Control OPs, which merely contain line number information used for debugging), then
+an error is thrown.
 
 =head1 WHAT PERL::TIDY SAYS
 
@@ -81,8 +82,8 @@ parsing.".
 
 Note that L<Filter::Util::Call> is a L<river
 stage|https://metacpan.org/about/faq#whatdoestheriverstageindicate> four, and I count 16 .xs files
-in CPAN that L<call filter_add()|perlfilter>, L<one being|Devel::Declare> river stage three. So it
-isn't a small issue.
+in CPAN that L<call filter_add()|perlfilter>, L<one being|Devel::Declare> river stage three. So this
+isn't necessarily a small issue.
 
 =head1 LICENSE
 

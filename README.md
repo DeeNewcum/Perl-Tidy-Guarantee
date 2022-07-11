@@ -9,15 +9,15 @@ changes to your code
 guarantees about whether it can absolutely avoid making any functional changes. If you have a lot of
 poorly-indented production code, like I do, that's a problem.
 
-Perl::Tidy::Guarantee does some extra checks after Perl::Tidy is finished, and so is able to provide
-you that guarantee.
+Perl::Tidy::Guarantee performs some extra checks after Perl::Tidy is finished, and so is able to
+provide you that guarantee.
 
 # SYNOPSIS
 
     use Perl::Tidy::Guarantee;
 
-    # compare() will die if a non-cosmetic change is detected
-    Perl::Tidy::Guarantee::compare($code_before_tidying, $code_after_tidying);
+    # tidy_compare() will die if a non-cosmetic change is detected
+    tidy_compare($code_before_tidying, $code_after_tidying);
 
 # DESCRIPTION
 
@@ -25,8 +25,9 @@ A guarantee is provided by doing this:
 
 Perl::Tidy is run on the desired piece of code. Both before and after running Perl::Tidy, this
 module passes your code through [B::Concise](https://metacpan.org/pod/B%3A%3AConcise), which is a module that generates a textual
-representation of Perl's internal OP tree. If that OP tree has changed (excluding COPs, which are
-Control OPs, which contain line number information used for debugging), then an error is thrown.
+representation of Perl's internal [OP tree](https://metacpan.org/pod/perloptree). If that OP tree has changed (excluding
+COPs, which are Control OPs, which merely contain line number information used for debugging), then
+an error is thrown.
 
 # WHAT PERL::TIDY SAYS
 
@@ -63,8 +64,8 @@ parsing.".
 
 Note that [Filter::Util::Call](https://metacpan.org/pod/Filter%3A%3AUtil%3A%3ACall) is a [river
 stage](https://metacpan.org/about/faq#whatdoestheriverstageindicate) four, and I count 16 .xs files
-in CPAN that [call filter\_add()](https://metacpan.org/pod/perlfilter), [one being](https://metacpan.org/pod/Devel%3A%3ADeclare) river stage three. So it
-isn't a small issue.
+in CPAN that [call filter\_add()](https://metacpan.org/pod/perlfilter), [one being](https://metacpan.org/pod/Devel%3A%3ADeclare) river stage three. So this
+isn't necessarily a small issue.
 
 # LICENSE
 
