@@ -14,10 +14,18 @@ provide you that guarantee.
 
 # SYNOPSIS
 
-    use Perl::Tidy::Guarantee;
+    # Create a tidyall.ini or .tidyallrc at the top of your project
+    #
+    [PerlTidyGuarantee]
+    select = **/*.{pl,pm,t}
+    argv = -noll -it=2
 
-    # tidy_compare() will die if a non-cosmetic change is detected
-    tidy_compare($code_before_tidying, $code_after_tidying);
+    # Process one or more specific files,
+    # look upwards from the first file for conf file
+    #
+    % tidyall file [file...]
+
+See [tidyall](https://metacpan.org/pod/tidyall) for more.
 
 # DESCRIPTION
 

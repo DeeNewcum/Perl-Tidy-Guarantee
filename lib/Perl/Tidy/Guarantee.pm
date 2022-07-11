@@ -7,7 +7,7 @@ our $VERSION = "0.01";
 
 use Carp;                   # in Perl core since v5.000
 use English;                # in Perl core since v5.000
-use IPC::Open3();           # in Perl core since v5.000
+use IPC::Open3 ();          # in Perl core since v5.000
 
 
 sub tidy_compare {
@@ -80,10 +80,18 @@ provide you that guarantee.
 
 =head1 SYNOPSIS
 
-    use Perl::Tidy::Guarantee;
+    # Create a tidyall.ini or .tidyallrc at the top of your project
+    #
+    [PerlTidyGuarantee]
+    select = **/*.{pl,pm,t}
+    argv = -noll -it=2
 
-    # tidy_compare() will die if a non-cosmetic change is detected
-    tidy_compare($code_before_tidying, $code_after_tidying);
+    # Process one or more specific files,
+    # look upwards from the first file for conf file
+    #
+    % tidyall file [file...]
+
+See L<tidyall> for more.
 
 =head1 DESCRIPTION
 

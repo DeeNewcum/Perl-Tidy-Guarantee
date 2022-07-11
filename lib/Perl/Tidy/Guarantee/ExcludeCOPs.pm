@@ -16,10 +16,8 @@ B::Concise::add_callback(
     sub {
         my ($h, $op, $format, $level, $stylename) = @_;
 
-        # "Control ops (cops) are one of the two ops OP_NEXTSTATE and OP_DBSTATE"
-
         $h->{SKIP} = 1
-                if ($op->name eq 'nextstate');
+                if ($h->{class} eq 'COP');
     });
 
 1;
