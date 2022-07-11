@@ -14,7 +14,9 @@ sub tidy_compare {
     my ($code_before_tidying, $code_after_tidying) = @_;
 
     my $optree_before_tidying = _generate_optree($code_before_tidying);
+    return 0 if ($? >> 8);      # should we die here?
     my $optree_after_tidying  = _generate_optree($code_after_tidying);
+    return 0 if ($? >> 8);      # should we die here?
 
     if ($optree_before_tidying ne $optree_after_tidying) {
         croak "tidy_compare() found a functional change";
