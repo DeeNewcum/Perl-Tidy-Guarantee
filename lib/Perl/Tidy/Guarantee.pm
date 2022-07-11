@@ -5,9 +5,47 @@ use warnings;
 
 our $VERSION = "0.01";
 
+use English;
+use IPC::Open3();           # available in Perl core since v5.000
 
-sub compare {
+
+sub tidy_compare {
     my ($code_before_tidying, $code_after_tidying) = @_;
+}
+
+
+# Takes in the contents of a Perl source file, and outputs what B::Concise produces from that source
+# file.
+sub _generate_optree {
+    my ($perl_source) = @_;
+
+    my @cmd = ($EXECUTABLE_NAME);
+    # TODO -- is this right? Do we want to add EVERY path in @INC to the command line?
+    foreach my $inc (reverse @INC) {
+        push(@cmd, "-I$inc");
+    }
+    push(@cmd, "-MO=Concise");
+    push(@cmd, "-MPerl::Tidy::Guarantee::ExcludeCOPs");
+
+    # passing false as the third parameter results in the child's STDOUT and STDERR being combined
+    my $pid = IPC::Open3::open3(my $chld_in, my $chld_err_plus_out, 0,
+                    @cmd);
+
+    # When run without a -e or a script filename, Perl tries to read the Perl source from STDIN.
+    # NOTE that if a script attempts to read from STDIN within a BEGIN {} block, it will end up 
+    # reading an empty string (versus stopping and waiting for information to be read in, if we were
+    # to instead write the source code to a File::Temp file first, and pass that filename into
+    # @cmd). Honestly though, it seems like it'd be pretty weird to read from STDIN during a
+    # BEGIN {} block.
+    print $chld_in $perl_source;
+    close $chld_in;
+
+    local $INPUT_RECORD_SEPARATOR = undef;
+    my $optree = <$chld_err_plus_out>;
+
+    waitpid( $pid, 0 );
+
+    return $optree;
 }
 
 
