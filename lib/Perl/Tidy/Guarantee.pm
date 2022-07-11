@@ -19,11 +19,13 @@ sub tidy_compare {
     if ($optree_before_tidying ne $optree_after_tidying) {
         croak "tidy_compare() found a functional change";
     }
+
+    return 1;
 }
 
 
-# Takes in the contents of a Perl source file, and outputs what B::Concise produces from that source
-# file.
+# Input -- the contents of one Perl source file
+# Output -- what B::Concise produces from that source file
 sub _generate_optree {
     my ($perl_source) = @_;
 

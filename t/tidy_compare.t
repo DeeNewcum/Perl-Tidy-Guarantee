@@ -50,6 +50,30 @@ lives_tidy_compare("subroutine calls", <<'EOF');
 EOF
 
 
+dies_tidy_compare("subroutine call in a different order", <<'EOF');
+    sub a {
+        print "hello world";
+    }
+
+    a();
+--------------------
+    a();
+
+    sub a {
+        print "hello world";
+    }
+EOF
+
+
+dies_tidy_compare("change interpolation", <<'EOF');
+    my $w = "world";
+    print "hello $w";
+--------------------
+    my $w = "world";
+    print 'hello $w';
+EOF
+
+
 done_testing();
 exit;
 
@@ -64,7 +88,7 @@ sub dies_tidy_compare {
 
     like(
         dies { Perl::Tidy::Guarantee::tidy_compare($source_a, $source_b) },
-        qr/^tidy_compare\(\) found a functional change$/,
+        qr/^tidy_compare\(\) found a functional change/,
         $here_doc
         );
 }
