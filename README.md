@@ -29,7 +29,7 @@ representation of Perl's internal [OP tree](https://metacpan.org/pod/perloptree)
 COPs, which are Control OPs, which merely contain line number information used for debugging), then
 an error is thrown.
 
-# WHAT PERL::TIDY SAYS
+# WHAT DOES PERL::TIDY SAY?
 
 [http://perltidy.sourceforge.net/FAQ.html](http://perltidy.sourceforge.net/FAQ.html) reads "an error in which a reformatted script does not
 function correctly is quite serious. … Perltidy goes to great lengths to catch any mistakes that it
@@ -48,7 +48,7 @@ catches its own error and ends with a message to that effect."
 To me, that gets 99% of the way there, but that final 1% could still bite me in the butt in
 production.
 
-## What PPI says
+## What does PPI say?
 
 Perl::Tidy doesn't do the parsing of Perl code on its own, as this is a [very difficult
 problem](https://everything2.com/title/Only+perl+can+parse+Perl). Instead, it relies on [PPI](https://metacpan.org/pod/PPI) to do
