@@ -105,19 +105,20 @@ an error is thrown.
 
 =head1 WHAT DOES PERL::TIDY SAY?
 
-L<http://perltidy.sourceforge.net/FAQ.html> reads "an error in which a reformatted script does not
-function correctly is quite serious. … Perltidy goes to great lengths to catch any mistakes that it
-might make, and it reports all such errors. For example, it checks for balanced braces, parentheses,
-and square brackets. And it runs a perl syntax check on the reformatted script if possible. (It
-cannot do this unless all modules referenced on use statements are available). B<There is no
-guarantee that these checks will catch every error>, but they are quite effective. For example, if
-perltidy were to accidentally miss the start of a here document, it would most likely report a
-syntax error after trying to parse the contents of the here document … It's difficult to give an
-absolute measure of reliability, but to give some practical sense of it, I can mention that I have a
-growing collection of perl scripts, currently about 500 MB in size, that I process in nightly batch
-runs after every programming change. ... Of the perl scripts that were written by people other than
-myself, Perltidy only fails to parse 1 correctly, as far as I can tell, and for that file, perltidy
-catches its own error and ends with a message to that effect."
+perltidy.sourceforge.net/FAQ.html L<used to
+read|https://web.archive.org/web/20180609065751/http://perltidy.sourceforge.net/FAQ.html> "an error
+in which a reformatted script does not function correctly is quite serious. … Perltidy goes to great
+lengths to catch any mistakes that it might make, and it reports all such errors. For example, it
+checks for balanced braces, parentheses, and square brackets. And it runs a perl syntax check on the
+reformatted script if possible. (It cannot do this unless all modules referenced on use statements
+are available). B<There is no guarantee that these checks will catch every error>, but they are
+quite effective. For example, if perltidy were to accidentally miss the start of a here document, it
+would most likely report a syntax error after trying to parse the contents of the here document …
+It's difficult to give an absolute measure of reliability, but to give some practical sense of it, I
+can mention that I have a growing collection of perl scripts, currently about 500 MB in size, that I
+process in nightly batch runs after every programming change. ... Of the perl scripts that were
+written by people other than myself, Perltidy only fails to parse 1 correctly, as far as I can tell,
+and for that file, perltidy catches its own error and ends with a message to that effect."
 
 To me, that gets 99% of the way there, but that final 1% could still bite me in the butt in
 production.
