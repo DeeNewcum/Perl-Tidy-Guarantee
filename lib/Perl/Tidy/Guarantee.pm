@@ -5,12 +5,20 @@ use warnings;
 
 our $VERSION = "0.01";
 
-use English;
-use IPC::Open3();           # available in Perl core since v5.000
+use Carp;                   # in Perl core since v5.000
+use English;                # in Perl core since v5.000
+use IPC::Open3();           # in Perl core since v5.000
 
 
 sub tidy_compare {
     my ($code_before_tidying, $code_after_tidying) = @_;
+
+    my $optree_before_tidying = _generate_optree($code_before_tidying);
+    my $optree_after_tidying  = _generate_optree($code_after_tidying);
+
+    if ($optree_before_tidying ne $optree_after_tidying) {
+        croak "tidy_compare() found a functional change";
+    }
 }
 
 
