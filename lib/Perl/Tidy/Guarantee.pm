@@ -84,6 +84,9 @@ provide you that guarantee.
 
     # Create a tidyall.ini or .tidyallrc at the top of your project
     #
+    # If you have an existing tidyall.ini or .tidyallrc, simply rename
+    # the [PerlTidy] section to [PerlTidyGuarantee].
+    #
     [PerlTidyGuarantee]
     select = **/*.{pl,pm,t}
     argv = -noll -it=2
