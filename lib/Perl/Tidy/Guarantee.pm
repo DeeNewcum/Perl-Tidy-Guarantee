@@ -59,6 +59,17 @@ sub _generate_optree {
 
     waitpid( $pid, 0 );
 
+    if ($? != 0) {
+        use Path::Tiny ();
+        Path::Tiny::path("oops.pl")->spew($perl_source);
+        print STDERR "perl -MO=Concise had an exit code of " . ($? << 8) . " and a signal of " . ($? & 127) .  "\n";
+        exit(1);
+    }
+
+    if ($optree eq '') {
+        die "perl -MO=Concise returned an empty string.\n";
+    }
+
     return $optree;
 }
 

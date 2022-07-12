@@ -73,12 +73,21 @@ while (1) {
                         . "> $base.optree";
             system "perl -MO=Concise -I../lib -MPerl::Tidy::Guarantee::ExcludeCOPs $base.tdy "
                         . "> $base.tdy.optree";
-            print "Error found, input Perl source written to $base.\n";
-            exit;
+            # double-check that Perl::Tidy::Guarantee::tidy_compare()'s check was good
+            system "cmp", "--silent", "$base.optree", "$base.tdy.optree";
+            if ($? >> 8 == 0) {
+                warn "WTF? On second glance, there was no optree difference found.\n";
+                unlink $base, "$base.optree", "$base.tdy", "$base.tdy.optree";
+            } else {
+                print "Error found, input Perl source written to $base.\n";
+                exit;
+            }
         } else {
             warn $_;
         }
     };
+
+    sleep(1) if ($^O eq 'cygwin');
 }
 
 exit;
