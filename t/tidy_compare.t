@@ -6,6 +6,9 @@ use Test2::Tools::Exception qw/dies lives/;
 
 use Perl::Tidy::Guarantee;
 
+plan(4);
+
+
 lives_tidy_compare("for loop", <<'EOF');
     for (1..3) {
         print "hello world";
@@ -73,8 +76,6 @@ dies_tidy_compare("change interpolation", <<'EOF');
     print 'hello $w';
 EOF
 
-
-done_testing();
 exit;
 
 

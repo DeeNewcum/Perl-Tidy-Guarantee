@@ -5,6 +5,8 @@ use Test2::V0;
 
 use Perl::Tidy::Guarantee;
 
+plan(2);
+
 
 test_generate_optree("for loop", <<'EOF');
     for (1..3) {
@@ -50,7 +52,6 @@ test_generate_optree("subroutine calls", <<'EOF');
 EOF
 
 
-done_testing();
 exit;
 
 
