@@ -10,6 +10,7 @@ use English;                # in Perl core since v5.000
 use IPC::Open3 ();          # in Perl core since v5.000
 
 
+# dies if there's a non-cosmetic difference
 sub tidy_compare {
     my ($code_before_tidying, $code_after_tidying) = @_;
 
