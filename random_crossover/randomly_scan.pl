@@ -66,8 +66,14 @@ while (1) {
         Perl::Tidy::Guarantee::tidy_compare($crossover_before_tidy, $crossover_after_tidy);
     } catch {
         if (/^tidy_compare\(\) found a functional change/) {
-            Path::Tiny::path("error_found.pl")->spew($crossover_before_tidy);
-            print "Error found, input Perl source written to error_found.pl.\n";
+			my $base = "error_found." . time() . ".pl";
+            Path::Tiny::path($base)->spew($crossover_before_tidy);
+			system "perltidy", $base;
+			system "perl -MO=Concise -I../lib -MPerl::Tidy::Guarantee::ExcludeCOPs $base "
+						. "> $base.optree";
+			system "perl -MO=Concise -I../lib -MPerl::Tidy::Guarantee::ExcludeCOPs $base.tdy "
+						. "> $base.tdy.optree";
+            print "Error found, input Perl source written to $base.\n";
             exit;
         } else {
             warn $_;
