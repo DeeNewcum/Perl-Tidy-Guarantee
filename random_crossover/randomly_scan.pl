@@ -37,17 +37,17 @@ while (1) {
             . substr($source_b, $source_b_len);
 
     my $crossover_after_tidy = '';
-	my $stderr = '';
-	my $logfile = '';
+    my $stderr = '';
+    my $logfile = '';
     my $errorfile = '';
 
-	my $error_flag = Perl::Tidy::perltidy(
-		source            => \$crossover_before_tidy,
-		destination       => \$crossover_after_tidy,
-		perltidyrc        => '',
-		logfile           => \$logfile,
-		errorfile         => \$errorfile,
-	);
+    my $error_flag = Perl::Tidy::perltidy(
+        source            => \$crossover_before_tidy,
+        destination       => \$crossover_after_tidy,
+        perltidyrc        => '',
+        logfile           => \$logfile,
+        errorfile         => \$errorfile,
+    );
 
     if ($error_flag == 0) {
         print "\$error_flag = 0;    # ran to completion with no error messages\n";
@@ -66,13 +66,13 @@ while (1) {
         Perl::Tidy::Guarantee::tidy_compare($crossover_before_tidy, $crossover_after_tidy);
     } catch {
         if (/^tidy_compare\(\) found a functional change/) {
-			my $base = "error_found." . time() . ".pl";
+            my $base = "error_found." . time() . ".pl";
             Path::Tiny::path($base)->spew($crossover_before_tidy);
-			system "perltidy", $base;
-			system "perl -MO=Concise -I../lib -MPerl::Tidy::Guarantee::ExcludeCOPs $base "
-						. "> $base.optree";
-			system "perl -MO=Concise -I../lib -MPerl::Tidy::Guarantee::ExcludeCOPs $base.tdy "
-						. "> $base.tdy.optree";
+            system "perltidy", $base;
+            system "perl -MO=Concise -I../lib -MPerl::Tidy::Guarantee::ExcludeCOPs $base "
+                        . "> $base.optree";
+            system "perl -MO=Concise -I../lib -MPerl::Tidy::Guarantee::ExcludeCOPs $base.tdy "
+                        . "> $base.tdy.optree";
             print "Error found, input Perl source written to $base.\n";
             exit;
         } else {
