@@ -50,6 +50,7 @@ sub _generate_optree {
     # to instead write the source code to a File::Temp file first, and pass that filename into
     # @cmd). Honestly though, it seems like it'd be pretty weird to read from STDIN during a
     # BEGIN {} block.
+	local $SIG{PIPE} = 'IGNORE';
     print $chld_in $perl_source;
     close $chld_in;
 
