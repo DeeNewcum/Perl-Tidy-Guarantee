@@ -142,20 +142,26 @@ sub import {
 
     return unless ($stub_exports{$pkg});
 
+    if (@_ == 0) {
+        push @_, keys(%{$stub_exports{$pkg}});
+    }
+
     foreach my $symbol (@_) {
         if ($symbol eq ':all') {
             push @_, keys(%{$stub_exports{$pkg}});
         }
     }
 
-    if (@_ == 0) {
-        push @_, keys(%{$stub_exports{$pkg}});
-    }
-
-    foreach my $symbol (@_) {
+    foreach my $arg (@_) {
+        my $symbol = $arg;
         next unless (exists $stub_exports{$pkg}{$symbol});
+        print STDERR "exporting ${pkg}::$symbol into $callpkg\n";
         no strict 'refs';
-        *{"${callpkg}::$symbol"} = sub {};
+        if ($symbol =~ s/^\$//) {
+            *{"${callpkg}::$symbol"} = \'';
+        } else {
+            *{"${callpkg}::$symbol"} = sub {};
+        }
     }
 }
 
