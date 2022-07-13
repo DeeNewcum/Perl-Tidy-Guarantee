@@ -50,6 +50,9 @@ our %stub_exports = parse_stub_exports(<<'EOF');
 Mouse
     extends with has before after around override super augment inner
 
+Moo
+    extends with has before after around
+
 Dancer
     after any before before_template cookie cookies config content_type dance dancer_version debug
     del dirname info error engine false forward from_dumper from_json from_yaml from_xml get halt
@@ -70,6 +73,14 @@ Net::EmptyPort
 
 File::Slurper
     >read_binary >read_text >read_lines >write_binary >write_text >read_dir
+
+FormValidator::Lite::Constraint
+    rule file_rule alias delsp
+
+Types::Standard
+	LaxNum StrictNum Num ClassName RoleName Optional CycleTuple Dict Overload StrMatch OptList Tied
+	InstanceOf ConsumerOf HasMethods Enum Any Item Bool Undef Defined Value Str Int Ref CodeRef
+	RegexpRef GlobRef FileHandle ArrayRef HashRef ScalarRef Object Maybe Map Tuple
 
 # ------------------------------------------------------------------------------
 EOF
@@ -127,6 +138,12 @@ sub import {
             }
         }
     } else {
+        foreach my $symbol (@_) {
+            if ($symbol eq ':all') {
+                push @_, keys(%{$stub_exports{$pkg}});
+            }
+        }
+
         foreach my $symbol (@_) {
             next unless (exists $stub_exports{$pkg}{$symbol});
             no strict 'refs';
