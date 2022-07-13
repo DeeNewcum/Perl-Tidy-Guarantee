@@ -101,6 +101,19 @@ EOF
 #die Dumper \%stub_exports;
 
 
+our %stubs = (
+    'File::chdir' => <<'EOF',
+        package File::chdir;
+        our $VERSION = 99999999;
+        our $CWD, @CWD;
+        1;
+EOF
+);
+
+#use Data::Dumper;
+#die Dumper \%stubs;
+
+
 unshift @INC, \&INC_hook;
 
 
@@ -123,6 +136,9 @@ our \$VERSION = 99999999;
 sub import {Perl::Tidy::Guarantee::DontLoadAnyModules::import(\@_)}
 1;
 EOF
+    if (exists $stubs{$module_name}) {
+        $prepend_text = $stubs{$module_name};
+    }
     my $filehandle = undef;
     my $subref = sub {
             # The subref is expected to generate one line of source code per call, writing the line
