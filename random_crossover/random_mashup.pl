@@ -11,17 +11,25 @@
     use Archive::Tar        ();     # Perl core
     use Path::Tiny          ();
     use Perl::Tidy          ();
+    use Storable            ();     # Perl core
     use Try::Tiny;
 
     use Data::Dumper;
 
+    use FindBin;
     use lib::relative '../lib/';
 
     use Perl::Tidy::Guarantee   ();
 
 my $minicpan_dir = '/home/newcum/minicpan/mirror/';
 
-my @tarballs = list_tarballs($minicpan_dir);
+my @tarballs;
+if (-e "$FindBin::Bin/.tarball_list") {
+    @tarballs = @{Storable::retrieve("$FindBin::Bin/.tarball_list")};
+} else {
+    @tarballs = list_tarballs($minicpan_dir);
+    Storable::nstore(\@tarballs, "$FindBin::Bin/.tarball_list");
+}
 
 while (1) {
     print "============================================================\n";
