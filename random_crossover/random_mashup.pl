@@ -38,6 +38,10 @@ while (1) {
     my $source_a = random_perl_file_contents(@tarballs);
     my $source_b = random_perl_file_contents(@tarballs);
 
+    # convert Windows => Unix line endings (otherwise we can end up with a mishmash of the two)
+    $source_a =~ s/\r\n/\n/sg;
+    $source_b =~ s/\r\n/\n/sg;
+
     my $source_a_len = int rand length $source_a;
     my $source_b_len = int rand length $source_b;
     print "The first $source_a_len bytes of the first file, and the last $source_b_len bytes of the second file.\n";
