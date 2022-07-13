@@ -59,6 +59,7 @@ while (1) {
     } else {
         $crossover_before_tidy = "# split occurs at line $line_split\n" . $crossover_before_tidy;
     }
+    print "-------- line-split occurs at line # $line_split --------\n";
         
     my $crossover_after_tidy = '';
     my $stderr = '';
