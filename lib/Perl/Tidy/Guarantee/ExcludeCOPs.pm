@@ -79,7 +79,7 @@ EOF
 #die Dumper \%stub_exports;
 
 
-push @INC, \&INC_hook;
+@INC = (\&INC_hook);
 
 
 sub INC_hook {
