@@ -12,6 +12,7 @@
     use Path::Tiny          ();
     use Perl::Tidy          ();
     use Storable            ();     # Perl core
+    use Text::LineNumber    ();
     use Try::Tiny;
 
     use Data::Dumper;
@@ -46,6 +47,15 @@ while (1) {
             substr($source_a, 0, $source_a_len)
             . substr($source_b, $source_b_len);
 
+    # indicate which line contains the split
+    my $tln = Text::LineNumber->new($source_a);
+    my $line_split = $tln->off2lnr($source_a_len) + 1;
+    if ($crossover_before_tidy =~ /^#!/s) {
+        $crossover_before_tidy =~ s/\n/\n# split occurs at line $line_split\n/s;
+    } else {
+        $crossover_before_tidy = "# split occurs at line $line_split\n" . $crossover_before_tidy;
+    }
+        
     my $crossover_after_tidy = '';
     my $stderr = '';
     my $logfile = '';
