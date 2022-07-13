@@ -2,6 +2,8 @@
 
 # uses the genetic operators (crossover + mutation) to randomly scan for Perl code that passe
 # Perl::Tidy's own tests, but that fail Perl::Tidy::Guarantee's test.
+#
+# https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm)
 
     use strict;
     use warnings;

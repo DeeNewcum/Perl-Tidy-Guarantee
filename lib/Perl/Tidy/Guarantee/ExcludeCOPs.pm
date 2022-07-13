@@ -27,6 +27,15 @@ B::Concise::add_callback(
     });
 
 
+
+package Perl::Tidy::Guarantee::DontLoadAnyModules;
+
+# For a few things, they actually probably should be installed locally before running this tool?
+our %DO_load_a_few = map {$_ => 1} (
+        # a few things that load special keywords in front of subs
+        'Mouse',
+    );
+
 # There's a problem -- Perl::Tidy doesn't try to load any use/require modules, while B::Concise
 # *does*. Therefore, when a desired module is missing, Perl::Tidy will succeed while B::Concise will
 # fail.
@@ -46,6 +55,12 @@ sub INC_hook {
 
     (my $module_name = $filename) =~ s#[/\\]#::#g;
     $module_name =~ s/\.pm$//;
+
+    if ($DO_load_a_few{$module_name}) {
+        print STDERR "Perl::Tidy::Guarantee actually recommends installing $module_name\n";
+        print STDERR "otherwise we can't properly parse some files.\n";
+        return;
+    }
 
     # At a bare minimum, modules must return true. Further, if a version check is requested, they
     # must declare the proper package name and have some kind of [correct?] version number.
