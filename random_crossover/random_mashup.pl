@@ -73,6 +73,7 @@ while (1) {
     }
     
     try {
+        $Perl::Tidy::Guarantee::special_debug_mode = 1;
         Perl::Tidy::Guarantee::tidy_compare($crossover_before_tidy, $crossover_after_tidy);
     } catch {
         if (/^tidy_compare\(\) found a functional change/) {
