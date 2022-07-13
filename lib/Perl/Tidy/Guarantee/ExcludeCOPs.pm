@@ -52,6 +52,9 @@ our %do_not_stub = map {$_ => 1} qw(
 our %stub_exports = parse_stub_exports(<<'EOF');
 # ------------------------------------------------------------------------------
 
+Moose
+    extends with has before after around override augment super inner
+
 Mouse
     extends with has before after around override super augment inner
 
@@ -86,6 +89,9 @@ Types::Standard
 	LaxNum StrictNum Num ClassName RoleName Optional CycleTuple Dict Overload StrMatch OptList Tied
 	InstanceOf ConsumerOf HasMethods Enum Any Item Bool Undef Defined Value Str Int Ref CodeRef
 	RegexpRef GlobRef FileHandle ArrayRef HashRef ScalarRef Object Maybe Map Tuple
+
+Module::Signature
+    >sign >verify >$SIGNATURE >$AUTHOR >$KeyServer >$Cipher >$Preamble
 
 # ------------------------------------------------------------------------------
 EOF
@@ -136,26 +142,20 @@ sub import {
 
     return unless ($stub_exports{$pkg});
 
-    if (@_ == 0) {
-        while (my ($symbol, $definition) = each %{$stub_exports{$pkg}}) {
-            #print STDERR ">>exporting ${callpkg}::$symbol to $pkg\n";
-            no strict 'refs';
-            if (!defined($definition)) {
-                *{"${callpkg}::$symbol"} = sub {};
-            }
+    foreach my $symbol (@_) {
+        if ($symbol eq ':all') {
+            push @_, keys(%{$stub_exports{$pkg}});
         }
-    } else {
-        foreach my $symbol (@_) {
-            if ($symbol eq ':all') {
-                push @_, keys(%{$stub_exports{$pkg}});
-            }
-        }
+    }
 
-        foreach my $symbol (@_) {
-            next unless (exists $stub_exports{$pkg}{$symbol});
-            no strict 'refs';
-            *{"${callpkg}::$symbol"} = sub {};
-        }
+    if (@_ == 0) {
+        push @_, keys(%{$stub_exports{$pkg}});
+    }
+
+    foreach my $symbol (@_) {
+        next unless (exists $stub_exports{$pkg}{$symbol});
+        no strict 'refs';
+        *{"${callpkg}::$symbol"} = sub {};
     }
 }
 
