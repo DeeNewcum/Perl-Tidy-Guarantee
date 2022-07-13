@@ -43,6 +43,11 @@ use strict;
 use warnings;
 
 
+our %do_not_stub = map {$_ => 1} qw(
+        vars
+    );
+
+
 # exports that are required for the rest of the code to merely *compile*, not run
 our %stub_exports = parse_stub_exports(<<'EOF');
 # ------------------------------------------------------------------------------
@@ -90,7 +95,7 @@ EOF
 #die Dumper \%stub_exports;
 
 
-@INC = (\&INC_hook);
+unshift @INC, \&INC_hook;
 
 
 sub INC_hook {
@@ -99,6 +104,8 @@ sub INC_hook {
 
     (my $module_name = $filename) =~ s#[/\\]#::#g;
     $module_name =~ s/\.pm$//;
+
+    return if ($do_not_stub{$module_name});
 
     # 1) At a bare minimum, modules must return true. 2) If a version check is requested, they
     # must declare the proper package name and have some kind of [correct?] version number.
