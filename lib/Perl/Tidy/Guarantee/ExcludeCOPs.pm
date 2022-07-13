@@ -97,7 +97,9 @@ EOF
 
 
 sub import {
-    my ($pkg) = @_;
+    my $pkg = shift;
+    # TODO -- if the caller only requests specific things to be imported, we should probably honor
+    # that
     my $callpkg = caller(1);
 
     use Data::Dumper;
