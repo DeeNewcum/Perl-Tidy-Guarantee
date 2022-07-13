@@ -35,7 +35,9 @@ sub _generate_optree {
     my @cmd = ($EXECUTABLE_NAME);
     # TODO -- is this right? Do we want to add EVERY path in @INC to the command line?
     foreach my $inc (reverse @INC) {
-        push(@cmd, "-I$inc");
+        push(@cmd, "-I$inc")
+			unless (ref($inc));		# skip any "hooks" in @INC
+									# see https://perldoc.perl.org/functions/require#:~:text=hooks
     }
     push(@cmd, "-MO=Concise");
     push(@cmd, "-MPerl::Tidy::Guarantee::ExcludeCOPs");
