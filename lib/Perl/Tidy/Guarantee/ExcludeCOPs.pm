@@ -58,6 +58,19 @@ Dancer
     setting set_cookie session splat status start template to_dumper to_json to_yaml to_xml true
     upload captures uri_for var vars warning
 
+Log::ger
+    log_trace log_debug log_info log_warn log_error log_fatal
+    log_is_trace log_is_debug log_is_info log_is_warn log_is_error log_is_fatal
+
+Coro
+    async async_pool cede schedule terminate current unblock_sub rouse_cb rouse_wait
+
+Net::EmptyPort
+    empty_port check_port
+
+File::Slurper
+    >read_binary >read_text >read_lines >write_binary >write_text >read_dir
+
 # ------------------------------------------------------------------------------
 EOF
 
@@ -98,23 +111,33 @@ EOF
 
 sub import {
     my $pkg = shift;
-    # TODO -- if the caller only requests specific things to be imported, we should probably honor
-    # that
     my $callpkg = caller(1);
 
-    use Data::Dumper;
-    #die Dumper [$pkg, $callpkg];
+    #use Data::Dumper;
+    #die Dumper [$pkg, $callpkg, \@_, \%args];
 
     return unless ($stub_exports{$pkg});
 
-    while (my ($symbol, $definition) = each %{$stub_exports{$pkg}}) {
-        #print STDERR ">>exporting ${callpkg}::$symbol to $pkg\n";
-        no strict 'refs';
-        *{"${callpkg}::$symbol"} = sub {};
+    if (@_ == 0) {
+        while (my ($symbol, $definition) = each %{$stub_exports{$pkg}}) {
+            #print STDERR ">>exporting ${callpkg}::$symbol to $pkg\n";
+            no strict 'refs';
+            if (!defined($definition)) {
+                *{"${callpkg}::$symbol"} = sub {};
+            }
+        }
+    } else {
+        foreach my $symbol (@_) {
+            next unless (exists $stub_exports{$pkg}{$symbol});
+            no strict 'refs';
+            *{"${callpkg}::$symbol"} = sub {};
+        }
     }
 }
 
 
+# symbol prefixes:
+#       >       is in @EXPORT_OK
 sub parse_stub_exports {
     my ($here_doc) = @_;
 
@@ -133,7 +156,11 @@ sub parse_stub_exports {
         } elsif ($line =~ s/^\s+//) {
             my @tokens = split ' ', $line;
             foreach my $token (@tokens) {
-                $ret{$current_module}{$token} = 1;
+                if ($token =~ s/^>//) {
+                    $ret{$current_module}{$token} = 'ok';
+                } else {
+                    $ret{$current_module}{$token} = undef;
+                }
             }
         }
     }
