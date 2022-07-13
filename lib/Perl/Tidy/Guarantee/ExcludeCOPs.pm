@@ -171,7 +171,7 @@ sub import {
     foreach my $arg (@_) {
         my $symbol = $arg;
         next unless (exists $stub_exports{$pkg}{$symbol});
-        print STDERR "exporting ${pkg}::$symbol into $callpkg\n";
+        #print STDERR "exporting ${pkg}::$symbol into $callpkg\n";
         no strict 'refs';
         if ($symbol =~ s/^\$//) {
             *{"${callpkg}::$symbol"} = \'';
