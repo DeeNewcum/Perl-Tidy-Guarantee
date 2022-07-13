@@ -45,6 +45,7 @@ use warnings;
 
 our %do_not_stub = map {$_ => 1} qw(
         vars
+        Carp
     );
 
 
@@ -55,10 +56,16 @@ our %stub_exports = parse_stub_exports(<<'EOF');
 Moose
     extends with has before after around override augment super inner
 
+Moose::Role
+    extends with has before after around override augment super inner
+
 Mouse
     extends with has before after around override super augment inner
 
 Moo
+    extends with has before after around
+
+MooX
     extends with has before after around
 
 Dancer
@@ -92,6 +99,12 @@ Types::Standard
 
 Module::Signature
     >sign >verify >$SIGNATURE >$AUTHOR >$KeyServer >$Cipher >$Preamble
+
+Carp::Assert
+    assert affirm should shouldnt DEBUG
+
+Readonly
+    Readonly >Scalar >Array >Hash >Scalar1 >Array1 >Hash1
 
 # ------------------------------------------------------------------------------
 EOF
