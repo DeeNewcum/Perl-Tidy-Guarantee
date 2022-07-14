@@ -119,6 +119,9 @@ Carp::Assert
 Readonly
     Readonly >Scalar >Array >Hash >Scalar1 >Array1 >Hash1
 
+Test::More
+    ok use_ok require_ok is isnt like unlike is_deeply cmp_ok skip todo todo_skip pass fail eq_array
+    eq_hash eq_set $TODO plan done_testing can_ok isa_ok new_ok diag note explain subtest BAIL_OUT
 # ------------------------------------------------------------------------------
 EOF
 

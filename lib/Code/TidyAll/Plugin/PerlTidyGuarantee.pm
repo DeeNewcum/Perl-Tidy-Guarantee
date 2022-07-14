@@ -11,8 +11,9 @@ use Perl::Tidy::Guarantee ();
  
 
 around 'transform_source' => sub {
-    my ($orig, $self, $source_before_tidying) = @_;
-    my $source_after_tidying = $orig->($self, $source_before_tidying);
+    my $orig = shift;
+    my ($self, $source_before_tidying) = @_;
+    my $source_after_tidying = $orig->(@_);
     Perl::Tidy::Guarantee::tidy_compare($source_before_tidying, $source_after_tidying);
     return $source_after_tidying;
 };

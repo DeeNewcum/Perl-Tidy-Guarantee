@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 use Test2::V0;
-use Test2::Tools::Exception qw/dies lives/;
+use Test2::Tools::Exception qw(dies lives);
 
 use Perl::Tidy::Guarantee;
 
