@@ -5,7 +5,9 @@
 #   perl -MO=Concise -MPerl::Tidy::Guarantee::ExcludeCOPs foobar.pl
 
 
+####################################################################################################
 package Perl::Tidy::Guarantee::ExcludeCOPs;
+####################################################################################################
 
 use strict;
 use warnings;
@@ -28,28 +30,39 @@ B::Concise::add_callback(
 
 
 
+####################################################################################################
 package Perl::Tidy::Guarantee::DontLoadAnyModules;
+####################################################################################################
 
-# There's a problem -- Perl::Tidy doesn't try to load any use/require modules, while B::Concise
-# *does*. Therefore, when a desired module is missing, Perl::Tidy will succeed while B::Concise will
-# fail.
+# Perl::Tidy doesn't try to load any use/require modules, while B::Concise *does* try to load them.
+# So, when a desired module hasn't been installed locally yet, Perl::Tidy will succeed while
+# B::Concise will fail. This is obviously a problem -- we want B::Concise's error status to precisely
+# match Perl::Tidy's error status.
 #
-# So we'll just hook @INC and stub out every single use/require.
+# One solution is, when running B::Concise, to hook @INC and stub out every single use/require,
+# returning "dummy" code for each attempt to require a module.
 #
 # https://perldoc.perl.org/functions/require#:~:text=hooks
-
 
 use strict;
 use warnings;
 
 
+# These modules MUST be installed locally and fully loaded, in order for other code to compile
+# correctly. They just so happen to be mostly things that are bundled with Perl core.
 our %do_not_stub = map {$_ => 1} qw(
         vars
         Carp
     );
 
 
-# exports that are required for the rest of the code to merely *compile*, not run
+# Unfortunately we can't entirely ignore the contents of CPAN modules -- some modules provide
+# exports that have a real impact on how other code is parsed / whether other code can be compiled
+# successfully.
+#
+# One solution is to require the user to install each of the modules listed below.
+#
+# Another (better?) solution is to provide bare-minimum stubs for these exports.
 our %stub_exports = parse_stub_exports(<<'EOF');
 # ------------------------------------------------------------------------------
 
@@ -109,7 +122,6 @@ Readonly
 # ------------------------------------------------------------------------------
 EOF
 
-
 #use Data::Dumper;
 #die Dumper \%stub_exports;
 
@@ -122,9 +134,6 @@ our %stubs = (
         1;
 EOF
 );
-
-#use Data::Dumper;
-#die Dumper \%stubs;
 
 
 unshift @INC, \&INC_hook;
@@ -228,16 +237,21 @@ sub parse_stub_exports {
 }
 
 
+####################################################################################################
 package Perl::Tidy::Guarantee::MaybeAllModules;
+####################################################################################################
 
-# One way to deal with this is to turn every "use" into a "use maybe" when running under B::Concise,
-# so that the desired module will be loaded if it's currently availble, but if it's not, B::Concise
-# won't fail.
+# Another way to deal with the problem (that B::Concise tries to require/use modules while
+# Perl::Tidy does not) is to turn every "use" into a "use maybe" when running under
+# B::Concise. This way, the desired module will be loaded if it's currently availble, but if it's
+# not, B::Concise will (more or less) continue on without failing.
 #
 # https://metacpan.org/pod/maybe
 
 use strict;
 use warnings;
+
+# TODO -- implement this
 
 
 1;
