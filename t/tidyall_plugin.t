@@ -45,9 +45,14 @@ my $guarantee_plugin = Code::TidyAll::Plugin::PerlTidyGuarantee->new(
 		tidyall => $tidyall,
 	);
 
-ok(
-	lives { $guarantee_plugin->transform_source($source_before_tidy1) },
-	"tidyall should succeed");
+my $is_lives = lives { $guarantee_plugin->transform_source($source_before_tidy1) };
+	
+ok($is_lives, "tidyall should succeed");
+
+if (!$is_lives) {
+	# call it without lives(), so that any error messages will be visible to the user
+	$guarantee_plugin->transform_source($source_before_tidy1);
+}
 	
 
 # The goal here is to find a piece of code that succeeds with Perl::Tidy but fails with
