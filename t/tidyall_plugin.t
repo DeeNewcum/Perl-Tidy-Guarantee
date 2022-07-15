@@ -6,7 +6,8 @@ use Test2::Tools::Exception qw(dies lives);
 
 use Code::TidyAll;
 use Code::TidyAll::Plugin::PerlTidyGuarantee;
-use Scalar::Util;
+use File::Temp ();
+#use Scalar::Util;
 use Test::MockModule;
 
 plan(2);
@@ -42,13 +43,13 @@ my $guarantee_plugin = Code::TidyAll::Plugin::PerlTidyGuarantee->new(
         argv    => '--noprofile',      # ignore any .perltidyrc the user might have
     );
 
-my $is_lives = lives { $guarantee_plugin->transform_source($source_before_tidy1) };
+my $is_lives = lives { $guarantee_plugin->transform_file(write_to_tempfile($source_before_tidy1)) };
     
 ok($is_lives, "tidyall should succeed");
 
 if (!$is_lives) {
     # call it without lives(), so that any error messages will be visible to the user
-    $guarantee_plugin->transform_source($source_before_tidy1);
+    $guarantee_plugin->transform_file(write_to_tempfile($source_before_tidy1));
 }
     
 
@@ -87,8 +88,19 @@ EOF
         });
 
     like(
-        dies { $guarantee_plugin->transform_source($source_before_tidy2) },
+        dies { $guarantee_plugin->transform_file(write_to_tempfile($source_before_tidy2)) },
         qr/^tidy_compare\(\) found a functional change/,
         "tidyall should fail"
         );
+}
+
+
+# input -- a string
+# output -- the name of the File::Temp file that string was written to
+sub write_to_tempfile {
+    my ($str) = @_;
+    my ($fh, $filename) = File::Temp::tempfile();
+    print $fh $str;
+    close $fh;
+    return $filename;
 }

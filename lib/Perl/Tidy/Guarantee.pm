@@ -13,12 +13,14 @@ use Symbol ();              # in Perl core
 our $special_debug_mode = 0;
 
 # dies if there's a non-cosmetic difference
+#
+# parameter '$filename' is entirely optional, and is used only as an arbitrary human-readable string
 sub tidy_compare {
-    my ($code_before_tidying, $code_after_tidying) = @_;
+    my ($code_before_tidying, $code_after_tidying, $filename) = @_;
 
-    my $optree_before_tidying = _generate_optree($code_before_tidying);
+    my $optree_before_tidying = _generate_optree($code_before_tidying, $filename);
     my $orig_CHILD_ERROR = $CHILD_ERROR;
-    my $optree_after_tidying  = _generate_optree($code_after_tidying);
+    my $optree_after_tidying  = _generate_optree($code_after_tidying, $filename);
     if ($special_debug_mode) {
         if (($optree_before_tidying eq '' && $optree_after_tidying eq '')
             || ($optree_before_tidying ne '' && $optree_after_tidying ne ''))
@@ -39,8 +41,10 @@ sub tidy_compare {
 
 # Input -- the contents of one Perl source file
 # Output -- what B::Concise produces from that source file
+#
+# parameter '$filename' is entirely optional, and is used only as an arbitrary human-readable string
 sub _generate_optree {
-    my ($perl_source) = @_;
+    my ($perl_source, $filename) = @_;
 
     my @cmd = ($EXECUTABLE_NAME);
     # TODO -- is this right? Do we want to add EVERY path in @INC to the command line?
@@ -70,6 +74,10 @@ sub _generate_optree {
     my $optree = <$chld_out>;
     my $chld_err_str = <$chld_err>;
     if ($chld_err_str !~ /^- syntax OK\s*$/s) {
+        if (defined($filename)) {
+            # insert the desired filename into the error message
+            $chld_err_str =~ s/(?<= at )-(?= line \d+)/$filename/;
+        }
         print STDERR $chld_err_str;
     }
 
