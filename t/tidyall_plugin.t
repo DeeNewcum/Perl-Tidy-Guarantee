@@ -35,7 +35,20 @@ my $tidyall = Code::TidyAll->new(
 		no_backups => 1,		# don't litter my Git repo with **/tidyall.d/ directories
 	);
 
-Scalar::Util::weaken($tidyall);
+# right now, the Code::TidyAll::Plugin::PerlTidyGuarantee->new() command is throwing the error
+# message:
+# 		Validation failed for type named Object declared in package Specio::Library::Builtins
+# 		(/home/newcum/perl5/lib/perl5/Specio/Library/Builtins.pm) at line 293
+# so try to send the debugger to exactly the right location (debugging these numerous random evals
+# really sucks!)
+use Specio::TypeChecks;
+if (!Specio::TypeChecks::isa_class($tidyall, 'Code::TidyAll')) {
+	die "validation as Specio Object failed";
+	exit(1);
+}
+	# see also https://metacpan.org/release/DROLSKY/Code-TidyAll-0.82/source/lib/Code/TidyAll/Plugin.pm#L77
+
+#Scalar::Util::weaken($tidyall);
 
 my $plugin = Code::TidyAll::Plugin::PerlTidyGuarantee->new(
 		select  => '*',
