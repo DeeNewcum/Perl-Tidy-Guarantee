@@ -9,7 +9,7 @@ use Code::TidyAll::Plugin::PerlTidyGuarantee;
 use Scalar::Util;
 use Test::MockModule;
 
-plan(0);
+plan(1);
 
 
 my $source_before_tidy1 = <<'EOF';
@@ -35,32 +35,15 @@ my $tidyall = Code::TidyAll->new(
 		no_backups => 1,		# don't litter my Git repo with **/tidyall.d/ directories
 	);
 
-# right now, the Code::TidyAll::Plugin::PerlTidyGuarantee->new() command is throwing the error
-# message:
-# 		Validation failed for type named Object declared in package Specio::Library::Builtins
-# 		(/home/newcum/perl5/lib/perl5/Specio/Library/Builtins.pm) at line 293
-# so try to send the debugger to exactly the right location (debugging these numerous random evals
-# really sucks!)
-use Specio::TypeChecks;
-if (!Specio::TypeChecks::isa_class($tidyall, 'Code::TidyAll')) {
-	die "validation as Specio Object failed";
-	exit(1);
-}
-	# see also https://metacpan.org/release/DROLSKY/Code-TidyAll-0.82/source/lib/Code/TidyAll/Plugin.pm#L77
-
-#Scalar::Util::weaken($tidyall);
-
-my $plugin = Code::TidyAll::Plugin::PerlTidyGuarantee->new(
+my $guarantee_plugin = Code::TidyAll::Plugin::PerlTidyGuarantee->new(
 		select  => '*',
 		name    => 'PerlTidyGuarantee',
 		tidyall => $tidyall,
 	);
-$plugin->transform_source($source_before_tidy1);
 
-
-#ok(
-#	lives { Code::TidyAll::Plugin::PerlTidyGuarantee->transform_source($source_before_tidy1) },
-#	"tidyall succeeds");
+ok(
+	lives { $guarantee_plugin->transform_source($source_before_tidy1) },
+	"tidyall succeeds");
 	
 
 # The goal here is to find a piece of code that succeeds with Perl::Tidy but fails with
