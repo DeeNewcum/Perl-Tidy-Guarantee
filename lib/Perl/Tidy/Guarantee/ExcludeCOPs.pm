@@ -106,9 +106,9 @@ FormValidator::Lite::Constraint
     rule file_rule alias delsp
 
 Types::Standard
-	LaxNum StrictNum Num ClassName RoleName Optional CycleTuple Dict Overload StrMatch OptList Tied
-	InstanceOf ConsumerOf HasMethods Enum Any Item Bool Undef Defined Value Str Int Ref CodeRef
-	RegexpRef GlobRef FileHandle ArrayRef HashRef ScalarRef Object Maybe Map Tuple
+    LaxNum StrictNum Num ClassName RoleName Optional CycleTuple Dict Overload StrMatch OptList Tied
+    InstanceOf ConsumerOf HasMethods Enum Any Item Bool Undef Defined Value Str Int Ref CodeRef
+    RegexpRef GlobRef FileHandle ArrayRef HashRef ScalarRef Object Maybe Map Tuple
 
 Module::Signature
     >sign >verify >$SIGNATURE >$AUTHOR >$KeyServer >$Cipher >$Preamble
