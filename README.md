@@ -7,7 +7,7 @@ changes to your code
 
 [Perl::Tidy](https://metacpan.org/pod/Perl%3A%3ATidy) _tries_ to only make cosmetic changes to your code. Unfortunately, it provides no
 guarantees about whether it can absolutely avoid making any functional changes. If you have a lot of
-poorly-indented production code, like I do, that's a problem.
+poorly-indented code in production, like I do, that's a problem.
 
 Perl::Tidy::Guarantee performs some extra checks after Perl::Tidy is finished, and so is able to
 provide you that guarantee.
@@ -42,7 +42,7 @@ an error is thrown.
 
 # WHAT DOES PERL::TIDY SAY?
 
-perltidy.sourceforge.net/FAQ.html [used to
+perltidy.sourceforge.net/FAQ.html (which unfortunately became a dead link) [used to
 read](https://web.archive.org/web/20180609065751/http://perltidy.sourceforge.net/FAQ.html) "an error
 in which a reformatted script does not function correctly is quite serious. … Perltidy goes to great
 lengths to catch any mistakes that it might make, and it reports all such errors. For example, it
@@ -57,7 +57,7 @@ process in nightly batch runs after every programming change. ... Of the perl sc
 written by people other than myself, Perltidy only fails to parse 1 correctly, as far as I can tell,
 and for that file, perltidy catches its own error and ends with a message to that effect."
 
-To me, that gets 99% of the way there, but that final 1% could still bite me in the butt in
+To me, that gets 99% of the way there, but I still worry that final 1% could bite me in the butt in
 production.
 
 ## What does PPI say?
@@ -70,14 +70,16 @@ the parsing for it.
 It is by far the most complex and twisty piece of perl I've ever written that is actually still
 built properly and isn't a terrible spaghetti-like mess."
 
-[PPI](https://metacpan.org/pod/PPI) says "How good is Good Enough? … **Any code written using source filters should not be
-assumed to be parsable.** … There are only 28 non-Acme Perl modules in CPAN that PPI is incapable of
-parsing.".
+[PPI](https://metacpan.org/pod/PPI) says "PPI seeks to be good enough … However, there are going to be limits to this process. …
+**Any code written using source filters should not be assumed to be parsable.** … There are only 28
+non-Acme Perl modules in CPAN that PPI is incapable of parsing."
 
 Note that [Filter::Util::Call](https://metacpan.org/pod/Filter%3A%3AUtil%3A%3ACall) is a [river
 stage](https://metacpan.org/about/faq#whatdoestheriverstageindicate) four, and I count 16 .xs files
-in CPAN that [call filter\_add()](https://metacpan.org/pod/perlfilter), [one being](https://metacpan.org/pod/Devel%3A%3ADeclare) river stage three. So this
-isn't necessarily a small issue.
+in CPAN that call [filter\_add()](https://metacpan.org/pod/perlfilter), one being a river stage three ([Devel::Declare](https://metacpan.org/pod/Devel%3A%3ADeclare)). So
+this isn't necessarily a small issue. (however, it's unclear whether source filters ever modify code
+beyond the file that directly `use`d them, whether their influence ever cascades to "files that use
+files that use source filters" or beyond)
 
 # LICENSE
 

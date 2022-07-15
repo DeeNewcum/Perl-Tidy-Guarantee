@@ -17,7 +17,7 @@ use B::Concise;
 # Suppress output of COPs when running B::Concise.
 #
 # COPs contain only file and line-number information, so when Perl::Tidy moves statements to a
-# different line, this could cause tidy_compare() to give the wrong result.
+# different line, this could cause tidy_compare() to incorrectly assume a mismatch.
 #
 # https://metacpan.org/pod/perloptree#COP
 B::Concise::add_callback(
@@ -36,8 +36,8 @@ package Perl::Tidy::Guarantee::DontLoadAnyModules;
 
 # Perl::Tidy doesn't try to load any use/require modules, while B::Concise *does* try to load them.
 # So, when a desired module hasn't been installed locally yet, Perl::Tidy will succeed while
-# B::Concise will fail. This is obviously a problem -- we want B::Concise's error status to precisely
-# match Perl::Tidy's error status.
+# B::Concise will fail. This is obviously a problem -- we want B::Concise's success/fail status to
+# precisely match Perl::Tidy's success/fail status.
 #
 # One solution is, when running B::Concise, to hook @INC and stub out every single use/require,
 # returning "dummy" code for each attempt to require a module.

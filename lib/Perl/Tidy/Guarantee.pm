@@ -71,6 +71,7 @@ sub _generate_optree {
     waitpid( $pid, 0 );
 
     if ($? != 0) {
+        # DELETE THIS SECTION before releasing, this is DEBUG ONLY
         use Path::Tiny ();
         Path::Tiny::path("oops.pl")->spew($perl_source);
         print STDERR "perl -MO=Concise had an exit code of " . ($? << 8) . " and a signal of " . ($? & 127) .  "\n";
@@ -99,7 +100,7 @@ changes to your code
 
 L<Perl::Tidy> I<tries> to only make cosmetic changes to your code. Unfortunately, it provides no
 guarantees about whether it can absolutely avoid making any functional changes. If you have a lot of
-poorly-indented production code, like I do, that's a problem.
+poorly-indented code in production, like I do, that's a problem.
 
 Perl::Tidy::Guarantee performs some extra checks after Perl::Tidy is finished, and so is able to
 provide you that guarantee.
@@ -134,7 +135,7 @@ an error is thrown.
 
 =head1 WHAT DOES PERL::TIDY SAY?
 
-perltidy.sourceforge.net/FAQ.html L<used to
+perltidy.sourceforge.net/FAQ.html (which unfortunately became a dead link) L<used to
 read|https://web.archive.org/web/20180609065751/http://perltidy.sourceforge.net/FAQ.html> "an error
 in which a reformatted script does not function correctly is quite serious. … Perltidy goes to great
 lengths to catch any mistakes that it might make, and it reports all such errors. For example, it
@@ -149,7 +150,7 @@ process in nightly batch runs after every programming change. ... Of the perl sc
 written by people other than myself, Perltidy only fails to parse 1 correctly, as far as I can tell,
 and for that file, perltidy catches its own error and ends with a message to that effect."
 
-To me, that gets 99% of the way there, but that final 1% could still bite me in the butt in
+To me, that gets 99% of the way there, but I still worry that final 1% could bite me in the butt in
 production.
 
 =head2 What does PPI say?
@@ -162,14 +163,16 @@ L<PPI::Tokenizer> says "The Tokenizer uses an immense amount of heuristics, gues
 It is by far the most complex and twisty piece of perl I've ever written that is actually still
 built properly and isn't a terrible spaghetti-like mess."
 
-L<PPI> says "How good is Good Enough? … B<Any code written using source filters should not be
-assumed to be parsable.> … There are only 28 non-Acme Perl modules in CPAN that PPI is incapable of
-parsing.".
+L<PPI> says "PPI seeks to be good enough … However, there are going to be limits to this process. …
+B<Any code written using source filters should not be assumed to be parsable.> … There are only 28
+non-Acme Perl modules in CPAN that PPI is incapable of parsing."
 
 Note that L<Filter::Util::Call> is a L<river
 stage|https://metacpan.org/about/faq#whatdoestheriverstageindicate> four, and I count 16 .xs files
-in CPAN that L<call filter_add()|perlfilter>, L<one being|Devel::Declare> river stage three. So this
-isn't necessarily a small issue.
+in CPAN that call L<filter_add()|perlfilter>, one being a river stage three (L<Devel::Declare>). So
+this isn't necessarily a small issue. (however, it's unclear whether source filters ever modify code
+beyond the file that directly C<use>d them, whether their influence ever cascades to "files that use
+files that use source filters" or beyond)
 
 =head1 LICENSE
 
