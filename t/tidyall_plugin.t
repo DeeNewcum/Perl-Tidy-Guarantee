@@ -31,6 +31,8 @@ my $tidyall = Code::TidyAll->new(
 				select => '*',
 			},
 		},
+		no_cache => 1,			# don't litter my Git repo with **/tidyall.d/ directories
+		no_backups => 1,		# don't litter my Git repo with **/tidyall.d/ directories
 	);
 
 Scalar::Util::weaken($tidyall);
