@@ -8,6 +8,7 @@ our $VERSION = "0.01";
 use Carp;                   # in Perl core since v5.000
 use English;                # in Perl core since v5.000
 use IPC::Open3 ();          # in Perl core since v5.000
+use Symbol ();              # in Perl core
 
 our $special_debug_mode = 0;
 
@@ -51,8 +52,8 @@ sub _generate_optree {
     push(@cmd, "-MO=Concise");
     push(@cmd, "-MPerl::Tidy::Guarantee::ExcludeCOPs");
 
-    # passing false as the third parameter results in the child's STDOUT and STDERR being combined
-    my $pid = IPC::Open3::open3(my $chld_in, my $chld_err_plus_out, 0,
+    my $chld_err = Symbol::gensym();
+    my $pid = IPC::Open3::open3(my $chld_in, my $chld_out, $chld_err,
                     @cmd);
 
     # When run without a -e or a script filename, Perl tries to read the Perl source from STDIN.
@@ -66,15 +67,19 @@ sub _generate_optree {
     close $chld_in;
 
     local $INPUT_RECORD_SEPARATOR = undef;
-    my $optree = <$chld_err_plus_out>;
+    my $optree = <$chld_out>;
+    my $chld_err_str = <$chld_err>;
+    if ($chld_err_str !~ /^- syntax OK\s*$/s) {
+        print STDERR $chld_err_str;
+    }
 
     waitpid( $pid, 0 );
 
-    if ($? != 0) {
+    if ($? << 8) {
         # DELETE THIS SECTION before releasing, this is DEBUG ONLY
-        use Path::Tiny ();
-        Path::Tiny::path("oops.pl")->spew($perl_source);
-        print STDERR "perl -MO=Concise had an exit code of " . ($? << 8) . " and a signal of " . ($? & 127) .  "\n";
+        #use Path::Tiny ();
+        #Path::Tiny::path("oops.pl")->spew($perl_source);
+        #print STDERR "perl -MO=Concise had an exit code of " . ($? << 8) . " and a signal of " . ($? & 127) .  "\n";
         exit(1);
     }
 
