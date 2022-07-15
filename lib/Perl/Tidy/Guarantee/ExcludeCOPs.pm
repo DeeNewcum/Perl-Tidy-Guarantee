@@ -257,5 +257,23 @@ use warnings;
 # TODO -- implement this
 
 
+####################################################################################################
+package Perl::Tidy::Guarantee::NoStrictSubs;
+####################################################################################################
+
+# Yet another way to deal with the problem might be to run "no strict 'subs'" everywhere, so that
+# modules stop erroring out when that particular condition occurs.
+#
+# (Or, at least, find a way to run "no strict 'subs'" in the top-level file only? Like, maybe
+# monkey-patching strict::import()?)
+#
+# https://metacpan.org/pod/everywhere
+
+use strict;
+use warnings;
+
+# TODO -- implement this
+
+
 1;
 
