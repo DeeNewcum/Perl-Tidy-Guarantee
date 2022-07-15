@@ -26,11 +26,7 @@ EOF
 
 my $tidyall = Code::TidyAll->new(
         root_dir => '.',
-        plugins => {
-            PerlTidyGuarantee => {
-                select => '*',
-            },
-        },
+        plugins => { },
         no_cache => 1,          # don't litter my Git repo with **/tidyall.d/ directories
         no_backups => 1,        # don't litter my Git repo with **/tidyall.d/ directories
     );
@@ -43,6 +39,7 @@ my $guarantee_plugin = Code::TidyAll::Plugin::PerlTidyGuarantee->new(
         select  => '*',
         name    => 'PerlTidyGuarantee',
         tidyall => $tidyall,
+        argv    => '--noprofile',      # ignore any .perltidyrc the user might have
     );
 
 my $is_lives = lives { $guarantee_plugin->transform_source($source_before_tidy1) };
