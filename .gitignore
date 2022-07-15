@@ -33,4 +33,4 @@ MYMETA.*
 random_crossover/error_found*
 random_crossover/oops*
 random_crossover/.tarball_list
-.tidyall.d/*
+**/.tidyall.d/

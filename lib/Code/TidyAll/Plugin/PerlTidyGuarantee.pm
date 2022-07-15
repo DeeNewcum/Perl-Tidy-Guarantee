@@ -6,14 +6,14 @@ use warnings;
 our $VERSION = '0.01';
 
 use parent 'Code::TidyAll::Plugin::PerlTidy';
-use Class::Method::Modifiers;
 use Perl::Tidy::Guarantee ();
  
 
-around 'transform_source' => sub {
-    my $orig = shift;
-    my ($self, $source_before_tidying) = @_;
-    my $source_after_tidying = $orig->(@_);
+sub transform_source {
+    my $self = shift;
+    my ($source_before_tidying) = @_;
+    my $source_after_tidying = $self->SUPER::transform_source(@_);
+    # dies if a difference is found
     Perl::Tidy::Guarantee::tidy_compare($source_before_tidying, $source_after_tidying);
     return $source_after_tidying;
 };
