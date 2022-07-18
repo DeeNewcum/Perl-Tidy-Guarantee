@@ -31,7 +31,10 @@ sub tidy_compare {
     return 0 if ($orig_CHILD_ERROR >> 8);      # should we die here?
     return 0 if ($CHILD_ERROR >> 8);      # should we die here?
 
-    if ($optree_before_tidying ne $optree_after_tidying) {
+    if (!defined($optree_before_tidying)
+        || !defined($optree_after_tidying)
+        || $optree_before_tidying ne $optree_after_tidying)
+    {
         croak "tidy_compare() found a functional change";
     }
 
@@ -88,7 +91,8 @@ sub _generate_optree {
         #use Path::Tiny ();
         #Path::Tiny::path("oops.pl")->spew($perl_source);
         #print STDERR "perl -MO=Concise had an exit code of " . ($? << 8) . " and a signal of " . ($? & 127) .  "\n";
-        exit(1);
+        #exit(1);
+        return undef;
     }
 
     if ($optree eq '') {
