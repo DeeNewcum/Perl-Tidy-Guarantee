@@ -7,6 +7,7 @@ our $VERSION = '0.01';
 
 use parent 'Code::TidyAll::Plugin::PerlTidy';
 use Perl::Tidy::Guarantee ();
+use Path::Tiny ();
  
 
 my $last_path_intercepted;
@@ -23,14 +24,14 @@ sub transform_source {
 }
 
 
-# We're intercepting another module's internal-only sub, which... is not good. But we need the full
-# path of the file, and I'm not sure how else to get it.
-my $orig_cache_model_for = \&Code::TidyAll::_cache_model_for;
+# We're intercepting another module's sub, which... is not good. But we need the full path of the
+# file, and I'm not sure how else to get it.
+my $orig_slurp_raw = \&Path::Tiny::slurp_raw;
 no warnings 'redefine';
-*Code::TidyAll::_cache_model_for = sub {
-        my ($self, $short_path, $full_path) = @_;
-        $last_path_intercepted = $full_path->stringify;
-        return $orig_cache_model_for->(@_);
+*Path::Tiny::slurp_raw = sub {
+        my ($self) = @_;
+        $last_path_intercepted = $self->stringify;
+        return $orig_slurp_raw->(@_);
     };
 
 
