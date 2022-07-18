@@ -9,14 +9,30 @@ use parent 'Code::TidyAll::Plugin::PerlTidy';
 use Perl::Tidy::Guarantee ();
  
 
+my $last_path_intercepted;
+
+
 sub transform_source {
     my $self = shift;
     my ($source_before_tidying) = @_;
     my $source_after_tidying = $self->SUPER::transform_source(@_);
     # dies if a difference is found
-    Perl::Tidy::Guarantee::tidy_compare($source_before_tidying, $source_after_tidying);
+    Perl::Tidy::Guarantee::tidy_compare($source_before_tidying, $source_after_tidying,
+                                        $last_path_intercepted);
     return $source_after_tidying;
-};
+}
+
+
+# We're intercepting another module's internal-only sub, which... is not good. But we need the full
+# path of the file, and I'm not sure how else to get it.
+my $orig_cache_model_for = \&Code::TidyAll::_cache_model_for;
+no warnings 'redefine';
+*Code::TidyAll::_cache_model_for = sub {
+        my ($self, $short_path, $full_path) = @_;
+        $last_path_intercepted = $full_path->stringify;
+        return $orig_cache_model_for->(@_);
+    };
+
 
 1;
 __END__
