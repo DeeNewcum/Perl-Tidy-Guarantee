@@ -268,6 +268,8 @@ sub parse_stub_exports {
 package Perl::Tidy::Guarantee::MaybeAllModules;
 ####################################################################################################
 
+our $is_enabled = 1;
+
 # Another way to deal with the problem (that B::Concise tries to require/use modules while
 # Perl::Tidy does not) is to turn every "use" into a "use maybe" when running under
 # B::Concise. This way, the desired module will be loaded if it's currently availble, but if it's
@@ -278,7 +280,35 @@ package Perl::Tidy::Guarantee::MaybeAllModules;
 use strict;
 use warnings;
 
-# TODO -- implement this
+# These subroutines are known to try to speculatively load packages. If these packages aren't
+# actually loaded already, then we don't want to provide any stubs for them.
+our %is_speculative = map {$_ => 1} qw(
+        Sys::Syslog::can_load
+    );
+
+if ($is_enabled) {
+    # because the hook is placed at the *end* of @INC, it only gets used if the actual file couldn't
+    # be found locally
+    push @INC, \&INC_hook;
+}
+
+
+sub INC_hook {
+    my ($self, $filename) = @_;
+            # $filename is something like 'Foo/Bar.pm'
+
+    for (my $depth=0; ; $depth++) {
+        my @frame = caller($depth);
+        last unless @frame;
+        my $sub = $frame[3];
+        if ($is_speculative{$sub}) {
+            return;
+        }
+    }
+
+    return Perl::Tidy::Guarantee::DontLoadAnyModules::INC_hook(@_);
+}
+
 
 
 ####################################################################################################
