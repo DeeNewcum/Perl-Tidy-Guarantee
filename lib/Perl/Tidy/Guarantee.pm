@@ -79,7 +79,7 @@ sub _generate_optree {
     if ($chld_err_str !~ /^- syntax OK\s*$/s) {
         if (defined($filename)) {
             # insert the desired filename into the error message
-            $chld_err_str =~ s/(?<= at )-(?= line \d+)/$filename/g;
+            $chld_err_str =~ s/(?<= at )-(?= line \d+)|^-(?= had compilation errors)/$filename/mg;
         }
         print STDERR $chld_err_str;
     }
