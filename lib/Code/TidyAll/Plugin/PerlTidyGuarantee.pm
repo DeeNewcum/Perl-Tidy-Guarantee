@@ -31,6 +31,7 @@ no warnings 'redefine';
 *Path::Tiny::slurp_raw = sub {
         my ($self) = @_;
         $last_path_intercepted = $self->stringify;
+        #print "\t---- $last_path_intercepted ----\n";
         return $orig_slurp_raw->(@_);
     };
 

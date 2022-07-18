@@ -55,6 +55,8 @@ use warnings;
 our %do_not_stub = map {$_ => 1} qw(
         vars
         Carp
+        Fcntl
+        Socket
     );
 
 
@@ -124,6 +126,22 @@ Readonly
 Test::More
     ok use_ok require_ok is isnt like unlike is_deeply cmp_ok skip todo todo_skip pass fail eq_array
     eq_hash eq_set $TODO plan done_testing can_ok isa_ok new_ok diag note explain subtest BAIL_OUT
+
+Date::Calc
+    Days_in_Year Days_in_Month Weeks_in_Year leap_year check_date check_time
+    check_business_date Day_of_Year Date_to_Days Day_of_Week Week_Number
+    Week_of_Year Monday_of_Week Nth_Weekday_of_Month_Year Standard_to_Business
+    Business_to_Standard Delta_Days Delta_DHMS Delta_YMD Delta_YMDHMS
+    N_Delta_YMD N_Delta_YMDHMS Normalize_DHMS Add_Delta_Days Add_Delta_DHMS
+    Add_Delta_YM Add_Delta_YMD Add_Delta_YMDHMS Add_N_Delta_YMD
+    Add_N_Delta_YMDHMS System_Clock Today Now Today_and_Now This_Year Gmtime
+    Localtime Mktime Timezone Date_to_Time Time_to_Date Easter_Sunday
+    Decode_Month Decode_Day_of_Week Decode_Language Decode_Date_EU
+    Decode_Date_US Fixed_Window Moving_Window Compress Uncompress
+    check_compressed Compressed_to_Text Date_to_Text Date_to_Text_Long
+    English_Ordinal Calendar Month_to_Text Day_of_Week_to_Text
+    Day_of_Week_Abbreviation Language_to_Text Language Languages Decode_Date_EU2
+    Decode_Date_US2 Parse_Date ISO_LC ISO_UC
 # ------------------------------------------------------------------------------
 EOF
 
@@ -282,8 +300,10 @@ use warnings;
 
 # These subroutines are known to try to speculatively load packages. If these packages aren't
 # actually loaded already, then we don't want to provide any stubs for them.
-our %is_speculative = map {$_ => 1} qw(
+our %will_speculatively_require = map {$_ => 1} qw(
         Sys::Syslog::can_load
+        Date::Calc::BEGIN
+        Net::DNS::Resolver::BEGIN
     );
 
 if ($is_enabled) {
@@ -301,7 +321,8 @@ sub INC_hook {
         my @frame = caller($depth);
         last unless @frame;
         my $sub = $frame[3];
-        if ($is_speculative{$sub}) {
+        #print STDERR ">>$sub\n";
+        if ($will_speculatively_require{$sub}) {
             return;
         }
     }
