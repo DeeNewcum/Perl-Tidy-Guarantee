@@ -191,18 +191,37 @@ sub import {
         if ($symbol eq ':all') {
             push @_, keys(%{$stub_exports{$pkg}});
         }
+        # also generate a stub sub inside the main package
+        stub_one_symbol("${pkg}::$symbol");
     }
 
     foreach my $arg (@_) {
         my $symbol = $arg;
         next unless (exists $stub_exports{$pkg}{$symbol});
         #print STDERR "exporting ${pkg}::$symbol into $callpkg\n";
-        no strict 'refs';
-        if ($symbol =~ s/^\$//) {
-            *{"${callpkg}::$symbol"} = \'';
-        } else {
-            *{"${callpkg}::$symbol"} = sub {};
-        }
+        stub_one_symbol("${callpkg}::$symbol");
+    }
+}
+
+
+# $symbol should contain both the package and the final symbol name
+sub stub_one_symbol {
+    my ($symbol) = @_;
+    my $sigil = '';
+
+    if ($symbol =~ s/^[\$]//) {
+        $sigil = $1;
+    } elsif ($symbol =~ s/::[\$](?=[^:]+$)/::/s) {
+        # we also allow the weird syntax of placing the sigil just after the final pair of colons
+        # (because this makes the "foreach my $arg (@_)" statement above simpler)
+        $sigil = $1;
+    }
+
+    no strict 'refs';
+    if ($sigil eq '$') {
+        *{$symbol} = \'';
+    } else {
+        *{$symbol} = sub {};
     }
 }
 
