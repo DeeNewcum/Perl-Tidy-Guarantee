@@ -34,6 +34,8 @@ B::Concise::add_callback(
 package Perl::Tidy::Guarantee::DontLoadAnyModules;
 ####################################################################################################
 
+our $is_enabled = 0;
+
 # Perl::Tidy doesn't try to load any use/require modules, while B::Concise *does* try to load them.
 # So, when a desired module hasn't been installed locally yet, Perl::Tidy will succeed while
 # B::Concise will fail. This is obviously a problem -- we want B::Concise's success/fail status to
@@ -139,9 +141,12 @@ EOF
 );
 
 
-unshift @INC, \&INC_hook;
+if ($is_enabled) {
+    unshift @INC, \&INC_hook;
+}
 
 
+# https://perldoc.perl.org/functions/require#:~:text=hooks
 sub INC_hook {
     my ($self, $filename) = @_;
             # $filename is something like 'Foo/Bar.pm'
