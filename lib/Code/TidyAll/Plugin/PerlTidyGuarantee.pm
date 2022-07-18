@@ -9,35 +9,12 @@ use parent 'Code::TidyAll::Plugin::PerlTidy';
 use Perl::Tidy::Guarantee ();
  
 
-sub can {
-    my ($self, $method) = @_;
-    if ($method eq 'transform_source') {
-        return undef;       # we don't want to inherit this subroutine from our parent -- we would
-                            # rather transform_file() be called instead
-    } else {
-        return $self->SUPER::can($method);
-    }
-}
-
-sub transform_file {
+sub transform_source {
     my $self = shift;
-    my ($filename) = @_;
-
-    open my $fin, '<', $filename
-        or die $!;
-    my $source_before_tidying = join('', <$fin>);
-    close $fin;
-
-    my $source_after_tidying = $self->SUPER::transform_source($source_before_tidying);
-
+    my ($source_before_tidying) = @_;
+    my $source_after_tidying = $self->SUPER::transform_source(@_);
     # dies if a difference is found
-    Perl::Tidy::Guarantee::tidy_compare($source_before_tidying, $source_after_tidying, $filename);
-
-    open my $fout, '>', $filename
-        or die $!;
-    print $fout $source_after_tidying;
-    close $fout;
-
+    Perl::Tidy::Guarantee::tidy_compare($source_before_tidying, $source_after_tidying);
     return $source_after_tidying;
 };
 
