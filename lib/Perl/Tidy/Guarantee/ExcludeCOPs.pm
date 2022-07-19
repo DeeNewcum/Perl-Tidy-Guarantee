@@ -458,6 +458,12 @@ use strict;
 use warnings;
 
 
+# LEFTOFF -- for some reason, this is failing spectactularly, it seems to be hanging whenever I run
+# 'tidyall'. Things to check:
+#       https://stackoverflow.com/a/28732045/1042525
+#       https://metacpan.org/pod/Autoload::AUTOCAN
+#       https://metacpan.org/dist/UNIVERSAL-canAUTOLOAD/view/README
+
 if ($is_enabled) {
     # did I mention this was a terrible idea?
     *UNIVERSAL::AUTOLOAD = \&AUTOLOAD;
@@ -466,7 +472,7 @@ if ($is_enabled) {
 
 # https://perldoc.perl.org/perlsub#Autoloading
 sub AUTOLOAD {
-    warn "autoloading $UNIVERSAL::AUTOLOAD\n";
+    print STDERR "autoloading $UNIVERSAL::AUTOLOAD\n";
     Perl::Tidy::Guarantee::DontLoadAnyModules::stub_one_symbol($UNIVERSAL::AUTOLOAD);
 }
 
