@@ -339,10 +339,7 @@ package Perl::Tidy::Guarantee::NoStrictSubs;
 our $is_enabled = 1;
 
 # Yet another way to deal with the problem might be to run "no strict 'subs'" everywhere, so that
-# modules stop erroring out when that particular condition occurs.
-#
-# (Or, at least, find a way to run "no strict 'subs'" in the top-level file only? Like, maybe
-# monkey-patching strict::import()?)
+# modules stop erroring out when they run into an export that was removed via the stub.
 #
 # https://metacpan.org/pod/everywhere
 
@@ -403,9 +400,17 @@ sub strict_import {
 
 
 if ($is_enabled) {
-    # stub out absolutely every module
+    # stub out almost every module
     unshift @INC, \&INC_hook;
 }
+
+
+our %do_not_stub = map {$_ => 1} qw(
+        vars
+        Carp
+        Fcntl
+        Socket
+    );
 
 
 # https://perldoc.perl.org/functions/require#:~:text=hooks
@@ -415,6 +420,8 @@ sub INC_hook {
 
     (my $module_name = $filename) =~ s#[/\\]#::#g;
     $module_name =~ s/\.pm$//;
+
+    return if ($do_not_stub{$module_name});
 
     # 1) At a bare minimum, modules must return true. 2) If a version check is requested, they
     # must declare the proper package name and have some kind of [correct?] version number.
