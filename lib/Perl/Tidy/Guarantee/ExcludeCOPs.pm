@@ -443,6 +443,33 @@ EOF
 }
 
 
+####################################################################################################
+package Perl::Tidy::Guarantee::AutoloadEverything;
+####################################################################################################
+
+our $is_enabled = 1;
+
+# Perl::Tidy::Guarantee::NoStrictSubs still allows some syntax error messages through. This module
+# provides a UNIVERSAL::AUTOLOAD() that will let you autoload ALL THE THINGS.
+#
+# (this is a *terrible* idea, by the way)
+
+use strict;
+use warnings;
+
+
+if ($is_enabled) {
+    # did I mention this was a terrible idea?
+    *UNIVERSAL::AUTOLOAD = \&AUTOLOAD;
+}
+
+
+# https://perldoc.perl.org/perlsub#Autoloading
+sub AUTOLOAD {
+    warn "autoloading $UNIVERSAL::AUTOLOAD\n";
+    Perl::Tidy::Guarantee::DontLoadAnyModules::stub_one_symbol($UNIVERSAL::AUTOLOAD);
+}
+
 
 1;
 
