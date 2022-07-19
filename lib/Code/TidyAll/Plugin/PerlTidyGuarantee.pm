@@ -26,13 +26,13 @@ sub transform_source {
 
 # We're intercepting another module's sub, which... is not good. But we need the full path of the
 # file, and I'm not sure how else to get it.
-my $orig_slurp_raw = \&Path::Tiny::slurp_raw;
+my $original_slurp_raw = \&Path::Tiny::slurp_raw;
 no warnings 'redefine';
 *Path::Tiny::slurp_raw = sub {
         my ($self) = @_;
         $last_path_intercepted = $self->stringify;
         #print "\t---- $last_path_intercepted ----\n";
-        return $orig_slurp_raw->(@_);
+        return $original_slurp_raw->(@_);
     };
 
 
