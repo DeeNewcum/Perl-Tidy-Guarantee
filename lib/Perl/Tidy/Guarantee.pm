@@ -140,19 +140,9 @@ provide you that guarantee.
 
 See L<tidyall> for more.
 
-=head1 DESCRIPTION
-
-A guarantee is provided by doing this:
-
-Perl::Tidy is run on the desired piece of code. Both before and after running Perl::Tidy, this
-module passes your code through L<B::Concise>, which is a module that generates a textual
-representation of Perl's internal L<OP tree|perloptree>. If that OP tree has changed (excluding
-COPs, which are Control OPs, which merely contain line number information used for debugging), then
-an error is thrown.
-
 =head1 WHAT DOES PERL::TIDY SAY?
 
-perltidy.sourceforge.net/FAQ.html (which unfortunately became a dead link) L<used to
+perltidy.sourceforge.net/FAQ.html L<used to
 read|https://web.archive.org/web/20180609065751/http://perltidy.sourceforge.net/FAQ.html> "an error
 in which a reformatted script does not function correctly is quite serious. … Perltidy goes to great
 lengths to catch any mistakes that it might make, and it reports all such errors. For example, it
@@ -190,6 +180,40 @@ in CPAN that call L<filter_add()|perlfilter>, one being a river stage three (L<D
 this isn't necessarily a small issue. (however, it's unclear whether source filters ever modify code
 beyond the file that directly C<use>d them, whether their influence ever cascades to "files that use
 files that use source filters" or beyond)
+
+=head1 DESCRIPTION
+
+A guarantee is provided by doing this:
+
+=over
+
+=item 1
+
+run Perl::Tidy on the desired piece of code
+
+=item 2
+
+generate the L<optree|perloptree> from the before-perltidy-source
+
+=over
+
+=item
+
+(the optree is the "bytecode" that Perl uses internally, and L<B::Concise> is used to generate its
+textual representation)
+
+=back
+
+=item 3
+
+generate the optree from the after-perltidy-source
+
+=item 4
+
+compare the two optrees, and if a difference is found, then Perl::Tidy::Guarantee declares that
+Perl::Tidy has created a functional change in the desired piece of code
+
+=back
 
 =head1 LICENSE
 
