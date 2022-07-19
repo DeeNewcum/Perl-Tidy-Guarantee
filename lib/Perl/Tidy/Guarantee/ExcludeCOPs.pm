@@ -286,7 +286,7 @@ sub parse_stub_exports {
 package Perl::Tidy::Guarantee::MaybeAllModules;
 ####################################################################################################
 
-our $is_enabled = 1;
+our $is_enabled = 0;
 
 # Another way to deal with the problem (that B::Concise tries to require/use modules while
 # Perl::Tidy does not) is to turn every "use" into a "use maybe" when running under
@@ -336,6 +336,8 @@ sub INC_hook {
 package Perl::Tidy::Guarantee::NoStrictSubs;
 ####################################################################################################
 
+our $is_enabled = 1;
+
 # Yet another way to deal with the problem might be to run "no strict 'subs'" everywhere, so that
 # modules stop erroring out when that particular condition occurs.
 #
@@ -347,7 +349,92 @@ package Perl::Tidy::Guarantee::NoStrictSubs;
 use strict;
 use warnings;
 
-# TODO -- implement this
+# verbatim from strict.pm
+my %bitmask = (
+    refs => 0x00000002,
+    subs => 0x00000200,
+    vars => 0x00000400,
+);
+
+# verbatim from strict.pm
+my %explicit_bitmask = (                                                                                               
+    refs => 0x00000020,                                                                                             
+    subs => 0x00000040,                                                                                             
+    vars => 0x00000080,                                                                                             
+);                    
+
+
+# verbatim from strict.pm in Perl 5.36.0
+my $bits = 0;
+$bits |= $_ for values %bitmask;
+
+my $inline_all_bits = $bits;
+*all_bits = sub () { $inline_all_bits };
+
+
+# verbatim from strict.pm in Perl 5.36.0
+$bits = 0;
+$bits |= $_ for values %explicit_bitmask;
+
+my $inline_all_explicit_bits = $bits;
+*all_explicit_bits = sub () { $inline_all_explicit_bits };
+
+
+if ($is_enabled) {
+    # Modifying a core module's internals is clearly misbehaving -- tisk tisk.
+    #my $original_import = \&strict::import;
+    no warnings 'redefine';
+    *strict::import = \&strict_import;
+}
+
+
+sub strict_import {
+    # We have to replicate what strict::import() does EXACTLY. Unfortunately, calling
+    # $original_import doesn't work because $^H only modifies the parent's scope. I don't know
+    # of a way to get it to modify the scope "two levels up".
+    my $pkg = shift;
+
+    # [more or less] verbatim from strict.pm in Perl 5.36.0
+    $^H |= @_ ? strict::bits(@_) : all_bits() | all_explicit_bits();
+
+    # but always do 'no strict "subs"' afterwards
+    $^H &= ~strict::bits("subs");
+}
+
+
+if ($is_enabled) {
+    # stub out absolutely every module
+    unshift @INC, \&INC_hook;
+}
+
+
+# https://perldoc.perl.org/functions/require#:~:text=hooks
+sub INC_hook {
+    my ($self, $filename) = @_;
+            # $filename is something like 'Foo/Bar.pm'
+
+    (my $module_name = $filename) =~ s#[/\\]#::#g;
+    $module_name =~ s/\.pm$//;
+
+    # 1) At a bare minimum, modules must return true. 2) If a version check is requested, they
+    # must declare the proper package name and have some kind of [correct?] version number.
+    # 3) If a package is found within %stub_exports, then we want to import() some symbols into
+    # the correct package.
+    my $prepend_text = <<"EOF";
+package $module_name;
+our \$VERSION = 99999999;
+sub import {Perl::Tidy::Guarantee::DontLoadAnyModules::import(\@_)}
+1;
+EOF
+    my $filehandle = undef;
+    my $subref = sub {
+            # The subref is expected to generate one line of source code per call, writing the line
+            # into $_ and returning 1. At EOF, it should return 0.
+            return 0;
+        };
+    return (\$prepend_text, $filehandle, $subref);
+}
+
 
 
 1;
