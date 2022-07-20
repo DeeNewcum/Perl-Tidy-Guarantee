@@ -200,7 +200,7 @@ generate the L<optree|perloptree> from the before-perltidy-source
 =item
 
 (the optree is the "bytecode" that Perl uses internally, and L<B::Concise> is used to generate its
-textual representation)
+textual representation † )
 
 =back
 
@@ -214,6 +214,11 @@ compare the two optrees, and if a difference is found, then Perl::Tidy::Guarante
 Perl::Tidy has created a functional change in the desired piece of code
 
 =back
+
+† This is unimportant minutiae, but we don't I<just> run it through B::Concise, we also instruct
+B::Concise to suppress output of L<COPs|perloptree/COP>, because COPs basically contain only line
+numbers (for debugging purposes), and Perl::Tidy often causes line-number changes for cosmetic
+reasons only, so we don't consider line-number changes to be significant.
 
 =head1 LICENSE
 

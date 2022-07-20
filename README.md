@@ -78,10 +78,15 @@ A guarantee is provided by doing this:
 1. run Perl::Tidy on the desired piece of code
 2. generate the [optree](https://metacpan.org/pod/perloptree) from the before-perltidy-source
     - (the optree is the "bytecode" that Perl uses internally, and [B::Concise](https://metacpan.org/pod/B%3A%3AConcise) is used to generate its
-    textual representation)
+    textual representation † )
 3. generate the optree from the after-perltidy-source
 4. compare the two optrees, and if a difference is found, then Perl::Tidy::Guarantee declares that
 Perl::Tidy has created a functional change in the desired piece of code
+
+† This is unimportant minutiae, but we don't _just_ run it through B::Concise, we also instruct
+B::Concise to suppress output of [COPs](https://metacpan.org/pod/perloptree#COP), because COPs basically contain only line
+numbers (for debugging purposes), and Perl::Tidy often causes line-number changes for cosmetic
+reasons only, so we don't consider line-number changes to be significant.
 
 # LICENSE
 
