@@ -14,13 +14,18 @@ use Exporter 5.57 'import';
 our @EXPORT = qw(add_exportstubs delete_exportstub);
 
 
-# Unfortunately we can't entirely ignore the contents of CPAN modules -- some modules provide
-# exports that have a real impact on how other code is parsed / whether other code can be compiled
-# successfully.
+# Unfortunately Perl::Tidy::Guarantee::DontLoadAnyModules can't entirely ignore the contents of CPAN
+# modules -- some modules provide exports that have a real impact on how other code is parsed /
+# whether other code can be compiled successfully.
 #
 # One solution is to require the user to install each of the modules listed below.
 #
-# Another (better?) solution is to provide bare-minimum stubs for these exports.
+# Another [better] solution is to provide bare-minimum stubs for just the modules' exports.
+
+# TODO -- Prune this export-stub information to just what's needed by
+#         Perl::Tidy::Guarantee::NoStrictSubs -- I don't think we need to cater to
+#         Perl::Tidy::Guarantee::DontLoadAnyModules any more, since NoStrictSubs seems to do a
+#         capable job.
 our %export_stubs = _parse_export_stubs(<<'EOF');
 # ------------------------------------------------------------------------------
 
@@ -152,14 +157,22 @@ sub _parse_export_stubs {
 sub add_exportstubs {
     my ($here_doc) = @_;
     die "TODO -- implement me";
+    my %new_exportstubs = _parse_export_stubs($here_doc);
+    # TODO -- merge %new_exportstubs into %export_stubs using... Hash::Merge?
 }
 
 
+# TODO -- convert this documentation into POD form
+#
 # Clears a single entry from %export_stubs. Though it's intended to be used mainly for DarkPAN
 # modules, it does work on CPAN modules too.
+#
+# Returns a boolean indicating whether that module's entry could be deleted.
 sub delete_exportstub {
     my ($module) = @_;
-    die "TODO -- implement me";
+    my $ret = exists $export_stubs{$module};
+    delete $export_stubs{$module};
+    return $ret;
 }
 
 

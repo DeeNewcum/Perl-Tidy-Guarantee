@@ -59,6 +59,9 @@ sub _generate_optree {
     push(@cmd, "-MO=Concise");
     push(@cmd, "-MPerl::Tidy::Guarantee::ExcludeCOPs");
 
+    # TODO -- devise a way for the parent to pass any updated
+    #         %Perl::Tidy::Guarantee::ExportStubs::export_stubs from the parent to the child
+
     my $chld_err = Symbol::gensym();
     my $pid = IPC::Open3::open3(my $chld_in, my $chld_out, $chld_err,
                     @cmd);
