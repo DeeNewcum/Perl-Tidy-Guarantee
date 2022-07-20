@@ -19,8 +19,8 @@ use B::Concise;
 
 # Suppress output of COPs when running B::Concise.
 #
-# COPs contain only file and line-number information, so when Perl::Tidy moves statements to a
-# different line, this could cause tidy_compare() to incorrectly assume a mismatch.
+# COPs contain only file and line-number information. Perl::Tidy sometimes moves statements to a
+# different line for cosmetic reasons, so we don't consider line-number changes significant.
 #
 # https://metacpan.org/pod/perloptree#COP
 B::Concise::add_callback(
