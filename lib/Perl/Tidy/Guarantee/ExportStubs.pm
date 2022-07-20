@@ -21,7 +21,7 @@ our @EXPORT = qw(add_exportstubs delete_exportstub);
 # One solution is to require the user to install each of the modules listed below.
 #
 # Another (better?) solution is to provide bare-minimum stubs for these exports.
-our %stub_exports = _parse_stub_exports(<<'EOF');
+our %export_stubs = _parse_export_stubs(<<'EOF');
 # ------------------------------------------------------------------------------
 
 Moose
@@ -100,7 +100,7 @@ Date::Calc
 EOF
 
 #use Data::Dumper;
-#die Dumper \%stub_exports;
+#die Dumper \%export_stubs;
 
 
 # These modules MUST be installed locally and fully loaded, in order for other code to compile
@@ -115,7 +115,7 @@ our %do_not_stub = map {$_ => 1} qw(
 
 # symbol prefixes:
 #       >       is in @EXPORT_OK
-sub _parse_stub_exports {
+sub _parse_export_stubs {
     my ($here_doc) = @_;
 
     my %ret;
@@ -148,14 +148,14 @@ sub _parse_stub_exports {
 
 # TODO -- write documentation for this public API
 #
-# $here_doc is expected to be in a format that's parsable by _parse_stub_exports()
+# $here_doc is expected to be in a format that's parsable by _parse_export_stubs()
 sub add_exportstubs {
     my ($here_doc) = @_;
     die "TODO -- implement me";
 }
 
 
-# Clears a single entry from %stub_exports. Though it's intended to be used mainly for DarkPAN
+# Clears a single entry from %export_stubs. Though it's intended to be used mainly for DarkPAN
 # modules, it does work on CPAN modules too.
 sub delete_exportstub {
     my ($module) = @_;
