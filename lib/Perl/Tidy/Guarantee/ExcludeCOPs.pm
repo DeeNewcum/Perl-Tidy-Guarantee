@@ -46,6 +46,18 @@ our $is_enabled = 0;
 #
 # https://perldoc.perl.org/functions/require#:~:text=hooks
 
+
+# ================ why I stopped working on this potential solution ================================
+# This is THE definition of "falling down a rabbit hole" -- it turns out that %stub_exports needs to
+# be filled out for MANY different CPAN modules (and private company-internal-only modules too!!).
+# This means that 1) for our team's purposes, the total amount of work required to fill out
+# %stub_exports could potentially be very large (and it's probably difficult to estimate, to boot).
+# And 2) for public use of this module, it would require end-users to do some cumbersome preliminary
+# work before they could ever properly use this module, and I'm not sure many people would want to
+# do that (even IF we communicated that caveat up front in huge red bold flashing text, which,
+# honestly, is the right thing to do).
+
+
 use strict;
 use warnings;
 
@@ -295,6 +307,19 @@ our $is_enabled = 0;
 #
 # https://metacpan.org/pod/maybe
 
+
+# ================ why I stopped working on this potential solution ================================
+# It turns out that blithely forging ahead after failing to use/require a module doesn't actually
+# work. Many pieces of code require certain exports to be in place before they can successfully
+# compile.
+#
+# While we do deal with this somewhat by having our own INC_hook() call
+# Perl::Tidy::Guarantee::DontLoadAnyModules::INC_hook() at the end, my gut feeling is that this
+# solution provides no value-add beyond what Perl::Tidy::Guarantee::DontLoadAnyModules already
+# provides. If that's true, then why not just use that solution and leave this one totally out of
+# it?
+
+
 use strict;
 use warnings;
 
@@ -339,9 +364,29 @@ package Perl::Tidy::Guarantee::NoStrictSubs;
 our $is_enabled = 1;
 
 # Yet another way to deal with the problem might be to run "no strict 'subs'" everywhere, so that
-# modules stop erroring out when they run into an export that was removed via the stub.
+# modules stop erroring out when they run into an export that we inadvertently removed by stubbing
+# out that module.
 #
 # https://metacpan.org/pod/everywhere
+#
+# The way we actually implement this is to monkey-patch strict::import(), so that whenever anyone
+# tries to execute "use strict @list", we change that to be "use strict @list; no strict 'subs';".
+# (more precisely, "use strict everything-in-@list-except-for-'subs'")
+
+
+# ================ why I stopped working on this potential solution ================================
+# While this solution works when trying to compile things that look like barewords (but might
+# actually be a call to a previously-exported-sub), it does *not* work for direct calls like
+# Foo::Bar::method().
+#
+# (NOTE that this may not be sufficient reason to abandon this potential solution, because it
+# greatly reduces the amount of work that needs to be put into %stub_exports before
+# Perl::Tidy::Guarantee can be successfully used, so it DOES seem to move us towards the goal)
+
+# ================ why I stopped working on this potential solution ================================
+# It also didn't work when code read something like "bareword qw(foo bar);" (which seems to mimic a
+# pragma, but is nonethless an attempt at a subroutine call), for reasons that aren't clear to me.
+
 
 use strict;
 use warnings;
@@ -447,22 +492,38 @@ EOF
 package Perl::Tidy::Guarantee::AutoloadEverything;
 ####################################################################################################
 
-our $is_enabled = 1;
+our $is_enabled = 0;
 
 # Perl::Tidy::Guarantee::NoStrictSubs still allows some syntax error messages through. This module
 # provides a UNIVERSAL::AUTOLOAD() that will let you autoload ALL THE THINGS.
 #
 # (this is a *terrible* idea, by the way)
 
-use strict;
-use warnings;
 
-
-# LEFTOFF -- for some reason, this is failing spectactularly, it seems to be hanging whenever I run
-# 'tidyall'. Things to check:
+# ================ why I stopped working on this potential solution ================================
+# There are internal technical problems with this current implementation. This implementation
+# currently causes tidyall to hang in practically all situations.
+#
+# It's possible that reading these documents could help with solving the current hanging behavior,
+# but it's also possible they're totally off-base, so take them with a grain of salt:
 #       https://stackoverflow.com/a/28732045/1042525
 #       https://metacpan.org/pod/Autoload::AUTOCAN
 #       https://metacpan.org/dist/UNIVERSAL-canAUTOLOAD/view/README
+#
+# In short, this solution is only ~60% implemented and has never functioned remotely properly.
+
+
+# ================ why I stopped working on this potential solution ================================
+# As a second point, AUTOLOAD can only magically summon *subroutines* into existence, and AFAIK it
+# can't magically summon scalars/lists/hashes/etc into existence. This is a problem because some
+# CPAN modules *require* scalars/lists/hashes/etc to be exported before the parent code can
+# successfully compile ('vars' is a prime example). It's possible this could be an inherent
+# limitation of AUTOLOAD, but I'm not sure yet.
+
+
+use strict;
+use warnings;
+
 
 if ($is_enabled) {
     # did I mention this was a terrible idea?
