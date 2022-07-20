@@ -2,16 +2,15 @@ package Perl::Tidy::Guarantee::ExportStubs;
 
 # Provides a centralized place to store export-stub information.
 #
-# Also provides a public API for companies to add export-stub information for their DarkPAN modules.
-
-# TODO -- write documentation for how it's expected that Code::TidyAll will end up loading the
-#         DarkPAN export-stub information
+# Also provides a public API for companies to add export-stub information for
+# their own DarkPAN modules. See Perl/Tidy/Guarantee.pm for POD documentation
+# of this public API.
 
 use strict;
 use warnings;
 
 use Exporter 5.57 'import';
-our @EXPORT = qw(add_exportstubs delete_exportstub);
+our @EXPORT_OK = qw(add_exportstubs delete_exportstub);
 
 
 # Unfortunately Perl::Tidy::Guarantee::DontLoadAnyModules can't entirely ignore the contents of CPAN
@@ -125,6 +124,9 @@ sub _parse_export_stubs {
 
     my %ret;
 
+    # TODO -- now that this can be called via an outside API (add_exportstubs()), is there any way
+    #         we can provide minimal error-reporting?
+
     my @lines = split /^/m, $here_doc;
     my $current_module;
     foreach my $line (@lines) {
@@ -151,19 +153,14 @@ sub _parse_export_stubs {
 }
 
 
-# TODO -- write documentation for this public API
-#
 # $here_doc is expected to be in a format that's parsable by _parse_export_stubs()
 sub add_exportstubs {
     my ($here_doc) = @_;
-    die "TODO -- implement me";
     my %new_exportstubs = _parse_export_stubs($here_doc);
-    # TODO -- merge %new_exportstubs into %export_stubs using... Hash::Merge?
+    die "TODO -- merge \%new_exportstubs into \%export_stubs using... Hash::Merge?";
 }
 
 
-# TODO -- convert this documentation into POD form
-#
 # Clears a single entry from %export_stubs. Though it's intended to be used mainly for DarkPAN
 # modules, it does work on CPAN modules too.
 #

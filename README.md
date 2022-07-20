@@ -71,17 +71,47 @@ this isn't necessarily a small issue. (however, it's unclear whether source filt
 beyond the file that directly `use`d them, whether their influence ever cascades to "files that use
 files that use source filters" or beyond)
 
-# DESCRIPTION
+# HOW IT WORKS
 
 A guarantee is provided by doing this:
 
 1. run Perl::Tidy on the desired piece of code
 2. generate the [optree](https://metacpan.org/pod/perloptree) from the before-perltidy-source
-    - (the optree is the "bytecode" that Perl uses internally, and [B::Concise](https://metacpan.org/pod/B%3A%3AConcise) is used to generate its
-    textual representation)
+    - (The optree is the "bytecode" that Perl uses internally, and it roughly corresponds to the syntax
+    tree. [B::Concise](https://metacpan.org/pod/B%3A%3AConcise) is used to generate its textual representation.)
 3. generate the optree from the after-perltidy-source
-4. compare the two optrees, and if a difference is found, then Perl::Tidy::Guarantee declares that
-Perl::Tidy has created a functional change in the desired piece of code
+4. compare the two optrees; if a difference is found, then we declare that Perl::Tidy has created a
+functional change in the desired piece of code
+
+# EXPORT-STUBS FOR PRIVATE COMPANY MODULES
+
+TODO -- Provide some background information for why any export-stub information is needed in the
+first place. I imagine that newcommers will feel kind of lost without that information.
+
+To provide support for private organizations who have their own
+[DarkPAN](https://www.olafalders.com/2019/02/19/about-the-various-pans/) modules, we provide a way to
+pass additional export-stub information to us.
+
+TODO -- Write documentation for how it's expected that their custom DarkPAN export-stub information
+will end up getting loaded under Code::TidyAll.
+
+## add\_exportstubs( $here\_doc )
+
+`$here_doc` is a multi-line string, written in a custom syntax. It's not well-documented yet, but
+you can look at [Perl::Tidy::Guarantee::ExportStubs](https://metacpan.org/pod/Perl%3A%3ATidy%3A%3AGuarantee%3A%3AExportStubs)'s `%export_stubs` and
+`_parse_export_stubs()` to get an idea of the expected format.
+
+TODO -- document this better
+
+TODO -- Might we consider changing the syntax to [YAML::XS](https://metacpan.org/pod/YAML%3A%3AXS) instead? That might be much better
+documented, and more intuitive?
+
+## delete\_exportstub( $module )
+
+Clears the current export-stub information for the specified module. While it's mainly intended for
+DarkPAN modules, it does work with any module's information.
+
+Returns a boolean indicating whether that module's entry could be deleted.
 
 # LICENSE
 

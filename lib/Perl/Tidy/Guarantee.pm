@@ -10,6 +10,12 @@ use English;                # in Perl core since v5.000
 use IPC::Open3 ();          # in Perl core since v5.000
 use Symbol ();              # in Perl core
 
+use Perl::Tidy::Guarantee::ExportStubs qw(add_exportstubs delete_exportstub);
+use Exporter 5.57 'import';
+our @EXPORT = qw(add_exportstubs delete_exportstub);        # re-export these public APIs
+
+
+# right now, this variable is used only by random_mashup.pl
 our $special_debug_mode = 0;
 
 # dies if there's a non-cosmetic difference
@@ -67,7 +73,7 @@ sub _generate_optree {
                     @cmd);
 
     # When run without a -e or a script filename, Perl tries to read the Perl source from STDIN.
-    # NOTE that if a script attempts to read from STDIN within a BEGIN {} block, it will end up 
+    # NOTE that if a script attempts to read from STDIN within a BEGIN {} block, it will end up
     # reading an empty string (versus stopping and waiting for information to be read in, if we were
     # to instead write the source code to a File::Temp file first, and pass that filename into
     # @cmd). Honestly though, it seems like it'd be pretty weird to read from STDIN during a
@@ -184,7 +190,7 @@ this isn't necessarily a small issue. (however, it's unclear whether source filt
 beyond the file that directly C<use>d them, whether their influence ever cascades to "files that use
 files that use source filters" or beyond)
 
-=head1 DESCRIPTION
+=head1 HOW IT WORKS
 
 A guarantee is provided by doing this:
 
@@ -202,8 +208,8 @@ generate the L<optree|perloptree> from the before-perltidy-source
 
 =item
 
-(the optree is the "bytecode" that Perl uses internally, and L<B::Concise> is used to generate its
-textual representation)
+(The optree is the "bytecode" that Perl uses internally, and it roughly corresponds to the syntax
+tree. L<B::Concise> is used to generate its textual representation.)
 
 =back
 
@@ -213,10 +219,40 @@ generate the optree from the after-perltidy-source
 
 =item 4
 
-compare the two optrees, and if a difference is found, then Perl::Tidy::Guarantee declares that
-Perl::Tidy has created a functional change in the desired piece of code
+compare the two optrees; if a difference is found, then we declare that Perl::Tidy has created a
+functional change in the desired piece of code
 
 =back
+
+=head1 EXPORT-STUBS FOR PRIVATE COMPANY MODULES
+
+TODO -- Provide some background information for why any export-stub information is needed in the
+first place. I imagine that newcommers will feel kind of lost without that information.
+
+To provide support for private organizations who have their own
+L<DarkPAN|https://www.olafalders.com/2019/02/19/about-the-various-pans/> modules, we provide a way to
+pass additional export-stub information to us.
+
+TODO -- Write documentation for how it's expected that their custom DarkPAN export-stub information
+will end up getting loaded under Code::TidyAll.
+
+=head2 add_exportstubs( $here_doc )
+
+C<$here_doc> is a multi-line string, written in a custom syntax. It's not well-documented yet, but
+you can look at L<Perl::Tidy::Guarantee::ExportStubs>'s C<%export_stubs> and
+C<_parse_export_stubs()> to get an idea of the expected format.
+
+TODO -- document this better
+
+TODO -- Might we consider changing the syntax to L<YAML::XS> instead? That might be much better
+documented, and more intuitive?
+
+=head2 delete_exportstub( $module )
+
+Clears the current export-stub information for the specified module. While it's mainly intended for
+DarkPAN modules, it does work with any module's information.
+
+Returns a boolean indicating whether that module's entry could be deleted.
 
 =head1 LICENSE
 
