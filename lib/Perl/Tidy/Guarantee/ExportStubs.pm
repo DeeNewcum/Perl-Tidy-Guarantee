@@ -13,6 +13,11 @@ use Exporter 5.57 'import';
 our @EXPORT_OK = qw(add_exportstubs delete_exportstub);
 
 
+# These modules MUST be installed locally and fully loaded, in order for other code to compile
+# correctly. They just so happen to be mostly things that are bundled with Perl core.
+our %do_not_stub;
+
+
 # Unfortunately Perl::Tidy::Guarantee::DontLoadAnyModules can't entirely ignore the contents of CPAN
 # modules -- some modules provide exports that have a real impact on how other code is parsed /
 # whether other code can be compiled successfully.
@@ -100,21 +105,25 @@ Date::Calc
     English_Ordinal Calendar Month_to_Text Day_of_Week_to_Text
     Day_of_Week_Abbreviation Language_to_Text Language Languages Decode_Date_EU2
     Decode_Date_US2 Parse_Date ISO_LC ISO_UC
+
+# vars.pm exports the requested scalars/lists/hashes, and it should be allowed to do so
+vars
+    (don't stub)
+
+Carp
+    (don't stub)
+
+Fcntl
+    (don't stub)
+
+Socket
+    (don't stub)
+
 # ------------------------------------------------------------------------------
 EOF
 
 #use Data::Dumper;
 #die Dumper \%export_stubs;
-
-
-# These modules MUST be installed locally and fully loaded, in order for other code to compile
-# correctly. They just so happen to be mostly things that are bundled with Perl core.
-our %do_not_stub = map {$_ => 1} qw(
-        vars
-        Carp
-        Fcntl
-        Socket
-    );
 
 
 # symbol prefixes:
@@ -139,6 +148,12 @@ sub _parse_export_stubs {
             $ret{$current_module} = {};
         } elsif ($line =~ s/^\s+//) {
             my @tokens = split ' ', $line;
+
+            if (@tokens == 2 && $tokens[0] eq "(don't" && $tokens[1] eq "stub)") {
+                $do_not_stub{$current_module} = 1;
+                next;
+            }
+
             foreach my $token (@tokens) {
                 if ($token =~ s/^>//) {
                     $ret{$current_module}{$token} = 'ok';
