@@ -5,10 +5,12 @@ use warnings;
 
 our $VERSION = "0.01";
 
-use Carp;                   # in Perl core since v5.000
 use English;                # in Perl core since v5.000
 use IPC::Open3 ();          # in Perl core since v5.000
 use Symbol ();              # in Perl core
+
+use Carp;                   # in Perl core since v5.000
+our @CARP_NOT = (__PACKAGE__);
 
 use Perl::Tidy::Guarantee::ExportStubs qw(add_exportstubs delete_exportstub);
 use Exporter 5.57 'import';
@@ -34,8 +36,8 @@ sub tidy_compare {
             return 1;
         }
     }
-    return 0 if ($orig_CHILD_ERROR >> 8);      # should we die here?
-    return 0 if ($CHILD_ERROR >> 8);      # should we die here?
+    return 0 if ($orig_CHILD_ERROR >> 8);      # should we croak here?
+    return 0 if ($CHILD_ERROR >> 8);      # should we croak here?
 
     if (!defined($optree_before_tidying)
         || !defined($optree_after_tidying)
@@ -105,7 +107,7 @@ sub _generate_optree {
     }
 
     if ($optree eq '') {
-        die "perl -MO=Concise returned an empty string.\n";
+        croak "perl -MO=Concise returned an empty string.\n";
     }
 
     return $optree;
