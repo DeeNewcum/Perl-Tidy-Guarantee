@@ -63,7 +63,7 @@ sub _generate_optree {
     # TODO -- is this right? Do we want to add EVERY path in @INC to the command line?
     foreach my $inc (reverse @INC) {
         push(@cmd, "-I$inc")
-            unless (ref($inc));     # skip any "hooks" in @INC
+            unless (ref($inc));     # skip any hooks in @INC
                                     # see https://perldoc.perl.org/functions/require#:~:text=hooks
     }
     push(@cmd, "-MO=Concise");
@@ -83,7 +83,7 @@ sub _generate_optree {
     print $chld_in $perl_source;
     close $chld_in;
 
-    local $INPUT_RECORD_SEPARATOR = undef;
+    local $INPUT_RECORD_SEPARATOR = undef;      # slurp all the lines at once
     my $optree = <$chld_out>;
     my $chld_err_str = <$chld_err>;
     if ($chld_err_str !~ /^- syntax OK\s*$/s) {
