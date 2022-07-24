@@ -22,6 +22,11 @@ our %initial_do_not_stub  = %Perl::Tidy::Guarantee::ExportStubs::do_not_stub;
 
 
 
+# confirm that transfer_parent_to_child() all by itself works
+restore_initial_contents();
+print STDERR ">>>>", transfer_parent_to_child(), "<<<<\n";
+
+
 exit;
 
 
@@ -55,12 +60,12 @@ sub transfer_parent_to_child {
     }
     push(@cmd, "-MPerl::Tidy::Guarantee::ExcludeCOPs=$exportstubs_tempfile");
     push(@cmd, "-MData::Dumper");
-    push(@cmd, '-e', 'print Dumper \%Perl::Tidy::Guarantee::ExportStubs::export_stubs, \%%Perl::Tidy::Guarantee::ExportStubs::do_not_stub');
+    push(@cmd, '-e', 'print Dumper \%Perl::Tidy::Guarantee::ExportStubs::export_stubs, \%Perl::Tidy::Guarantee::ExportStubs::do_not_stub');
 
     # Here we use open(..., '-|') in place of IPC::Open3, because we only care about STDOUT in this
     # case. We want STDERR to go straight to the end user, uninterrupted, and we don't need to pipe
     # anything into STDIN.
-    open my $chld_stdout, '-|', @cmd
+    my $pid = open(my $chld_stdout, '-|', @cmd)
         or die "Unable to start child process: $!\n";
 
     local $SIG{PIPE} = 'IGNORE';
