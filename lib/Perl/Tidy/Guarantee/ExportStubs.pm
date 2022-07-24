@@ -27,7 +27,7 @@ our %do_not_stub;
 #
 # One solution is to require the user to install each of the modules listed below.
 #
-# Another [better] solution is to provide bare-minimum stubs for just the modules' exports.
+# A better solution is to provide bare-minimum stubs for just the modules' exports.
 
 # TODO -- Prune this export-stub information to just what's needed by
 #         Perl::Tidy::Guarantee::NoStrictSubs -- I don't think we need to cater to

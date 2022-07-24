@@ -7,7 +7,6 @@ use Test2::Tools::Exception qw(dies lives);
 use Code::TidyAll;
 use Code::TidyAll::Plugin::PerlTidyGuarantee;
 use File::Temp ();
-#use Scalar::Util;
 use Test::MockModule;
 
 plan(2);
@@ -33,7 +32,7 @@ my $tidyall = Code::TidyAll->new(
     );
 
 # Why does Code::TidyAll::Plugin::PerlTidyGuarantee->new() error out if we uncomment the following
-# line? Code::TidyAll::Plugin specifically says that the 'tidyall' parameter should be a 'weak_ref'.
+# line? Code/TidyAll/Plugin.pm specifically says that the 'tidyall' parameter should be a 'weak_ref'.
 #Scalar::Util::weaken($tidyall);
 
 my $guarantee_plugin = Code::TidyAll::Plugin::PerlTidyGuarantee->new(
@@ -48,7 +47,8 @@ my $is_lives = lives { $guarantee_plugin->transform_source($source_before_tidy1)
 ok($is_lives, "tidyall should succeed");
 
 if (!$is_lives) {
-    # call it without lives(), so that any error messages will be visible to the user
+    # Now call it again without lives(), so that any error messages will be visible to the user.
+    # (the call to 'lives', above, intercepts any errors that would be otherwise shown)
     $guarantee_plugin->transform_source($source_before_tidy1);
 }
     

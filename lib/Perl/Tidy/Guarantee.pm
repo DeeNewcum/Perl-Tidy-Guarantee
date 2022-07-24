@@ -69,9 +69,6 @@ sub _generate_optree {
     push(@cmd, "-MO=Concise");
     push(@cmd, "-MPerl::Tidy::Guarantee::ExcludeCOPs=$exportstubs_tempfile");
 
-    # TODO -- devise a way for the parent to pass any updated
-    #         %Perl::Tidy::Guarantee::ExportStubs::export_stubs from the parent to the child
-
     my $chld_err = Symbol::gensym();
     my $pid = IPC::Open3::open3(my $chld_in, my $chld_out, $chld_err,
                     @cmd);
@@ -99,7 +96,7 @@ sub _generate_optree {
 
     waitpid( $pid, 0 );
 
-    # I don't think File::Temp::cleanup() minds if we unlink the File::Temp file early
+    # I don't think File::Temp::cleanup() will throw an error if we unlink the temp file early.
     unlink($exportstubs_tempfile);
 
     if ($? << 8) {
