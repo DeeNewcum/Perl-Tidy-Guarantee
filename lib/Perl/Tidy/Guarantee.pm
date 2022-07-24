@@ -6,7 +6,7 @@ use warnings;
 our $VERSION = "0.01";
 
 use English;                # in Perl core since v5.000
-use Forks::Super ();
+use IPC::Open3 ();          # in Perl core since v5.000
 use Symbol ();              # in Perl core
 
 use Carp;                   # in Perl core since v5.000
@@ -70,34 +70,34 @@ sub _generate_optree {
     # TODO -- devise a way for the parent to pass any updated
     #         %Perl::Tidy::Guarantee::ExportStubs::export_stubs from the parent to the child
 
+    my $chld_err = Symbol::gensym();
+    my $pid = IPC::Open3::open3(my $chld_in, my $chld_out, $chld_err,
+                    @cmd);
+
     # When run without a -e or a script filename, Perl tries to read the Perl source from STDIN.
     # NOTE that if a script attempts to read from STDIN within a BEGIN {} block, it will end up
     # reading an empty string (versus stopping and waiting for information to be read in, if we were
     # to instead write the source code to a File::Temp file first, and pass that filename into
     # @cmd). Honestly though, it seems like it'd be pretty weird to read from STDIN during a
     # BEGIN {} block.
-    my ($optree, $stderr);
-    # TODO -- figure out how POSTFORK_CHILD works, and cause the _write_exportstubs_to_handle() pipe
-    # to be closed there
-    my $job = Forks::Super::fork {
-        stdin    => $perl_source,
-        stdout   => \$optree,
-        stderr   => \$stderr,
-        cmd      => \@cmd,
-    };
+    local $SIG{PIPE} = 'IGNORE';
+    print $chld_in $perl_source;
+    close $chld_in;
 
-    if ($stderr !~ /^- syntax OK\s*$/s) {
+    local $INPUT_RECORD_SEPARATOR = undef;
+    my $optree = <$chld_out>;
+    my $chld_err_str = <$chld_err>;
+    if ($chld_err_str !~ /^- syntax OK\s*$/s) {
         if (defined($filename)) {
             # insert the desired filename into the error message
-            $stderr =~ s/(?<= at )-(?= line \d+)|^-(?= had compilation errors)/$filename/mg;
+            $chld_err_str =~ s/(?<= at )-(?= line \d+)|^-(?= had compilation errors)/$filename/mg;
         }
-        print STDERR $stderr;
+        print STDERR $chld_err_str;
     }
 
-    Forks::Super::close_fh($job);
+    waitpid( $pid, 0 );
 
-    # check the exit status
-    if (Forks::Super::status($job)) {
+    if ($? << 8) {
         # DELETE THIS SECTION before releasing, this is DEBUG ONLY
         #use Path::Tiny ();
         #Path::Tiny::path("oops.pl")->spew($perl_source);
@@ -111,12 +111,6 @@ sub _generate_optree {
     }
 
     return $optree;
-}
-
-
-sub _write_exportstubs_to_handle {
-    my ($fh) = @_;
-    die "TODO -- implement me";
 }
 
 
