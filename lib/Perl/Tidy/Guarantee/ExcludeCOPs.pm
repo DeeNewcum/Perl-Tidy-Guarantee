@@ -2,7 +2,7 @@
 
 # It's intended to be used like this:
 #
-#   perl -MO=Concise -MPerl::Tidy::Guarantee::ExcludeCOPs foobar.pl
+#   perl -MO=Concise -MPerl::Tidy::Guarantee::ExcludeCOPs=export_stubs.bin foobar.pl
 
 
 use Perl::Tidy::Guarantee::ExportStubs ();
@@ -30,6 +30,16 @@ B::Concise::add_callback(
         $h->{SKIP} = 1
                 if ($h->{class} eq 'COP');
     });
+
+
+
+# allow the export-stubs filename to be specified on the command-line when starting B::Concise
+sub import {
+    my ($pkg, $exportstubs_filename) = @_;
+    if (defined($exportstubs_filename)) {
+        Perl::Tidy::Guarantee::ExportStubs::_read_from_file($exportstubs_filename);
+    }
+}
 
 
 

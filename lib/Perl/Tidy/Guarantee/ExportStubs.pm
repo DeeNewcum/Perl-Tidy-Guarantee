@@ -9,6 +9,9 @@ package Perl::Tidy::Guarantee::ExportStubs;
 use strict;
 use warnings;
 
+use File::Temp ();      # in Perl core since v5.6.1
+use Storable ();        # in Perl core since v5.7.3
+
 use Exporter 5.57 'import';
 our @EXPORT_OK = qw(add_exportstubs delete_exportstub);
 
@@ -185,6 +188,32 @@ sub delete_exportstub {
     my $ret = exists $export_stubs{$module};
     delete $export_stubs{$module};
     return $ret;
+}
+
+
+# Writes the contents of %export_stubs and %do_not_stub to a File::Temp file.
+#
+# The parent process calls this, just before creating the child process via IPC::Open3.
+sub _write_to_temp_file {
+    my ($temp_fh, $temp_filename) = File::Temp::tempfile();
+    Storable::nstore_fd({
+            export_stubs => \%export_stubs,
+            do_not_stub  => \%do_not_stub,
+        },
+        $temp_fh);
+    close($temp_fh);
+    return $temp_filename;
+}
+
+
+# Reads the contents of %export_stubs and %do_not_stub from the specified file.
+#
+# The child process calls this at the very beginning, as it starts up.
+sub _read_from_file {
+    my ($filename) = @_;
+    my $hashref = Storable::retrieve($filename);
+    %export_stubs = %{$hashref->{export_stubs}};
+    %do_not_stub  = %{$hashref->{do_not_stub}};
 }
 
 

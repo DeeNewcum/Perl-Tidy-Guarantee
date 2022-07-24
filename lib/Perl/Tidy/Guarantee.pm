@@ -57,6 +57,8 @@ sub tidy_compare {
 sub _generate_optree {
     my ($perl_source, $filename) = @_;
 
+    my $exportstubs_tempfile = Perl::Tidy::Guarantee::ExportStubs::_write_to_temp_file();
+
     my @cmd = ($EXECUTABLE_NAME);
     # TODO -- is this right? Do we want to add EVERY path in @INC to the command line?
     foreach my $inc (reverse @INC) {
@@ -65,7 +67,7 @@ sub _generate_optree {
                                     # see https://perldoc.perl.org/functions/require#:~:text=hooks
     }
     push(@cmd, "-MO=Concise");
-    push(@cmd, "-MPerl::Tidy::Guarantee::ExcludeCOPs");
+    push(@cmd, "-MPerl::Tidy::Guarantee::ExcludeCOPs=$exportstubs_tempfile");
 
     # TODO -- devise a way for the parent to pass any updated
     #         %Perl::Tidy::Guarantee::ExportStubs::export_stubs from the parent to the child
@@ -96,6 +98,9 @@ sub _generate_optree {
     }
 
     waitpid( $pid, 0 );
+
+    # I don't think File::Temp::cleanup() minds if we unlink the File::Temp file early
+    unlink($exportstubs_tempfile);
 
     if ($? << 8) {
         # DELETE THIS SECTION before releasing, this is DEBUG ONLY
