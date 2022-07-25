@@ -126,7 +126,9 @@ Socket
 EOF
 
 #use Data::Dumper;
-#die Dumper \%export_stubs;
+#print STDERR Dumper \%export_stubs;
+#print STDERR Dumper \%do_not_stub;
+#exit;
 
 
 # symbol prefixes:

@@ -41,42 +41,14 @@ sub restore_initial_contents {
 
 # We transfer whatever the current contents of %export_stubs and %do_not_stub from parent process to
 # child process.
-#
-# This code is *VERY* similar to Perl::Tidy::Guarantee::_generate_optree().
 sub transfer_parent_to_child {
     # Although this process normally happens as part of calling B::Concise, we're not going to
     # actually invoke B::Concise here. We want to zoom in on just the data structure that gets
     # transfered across.
 
-    my $exportstubs_tempfile = Perl::Tidy::Guarantee::ExportStubs::_write_to_temp_file();
+    # apparently 'bless' will let you use damn near any string for the package name
+    my $text_in = bless([], '--testing only--');    # cause $is_test_mode to be true
+    my $text_out = Perl::Tidy::Guarantee::_generate_optree($text_in);
 
-    my @cmd = ($EXECUTABLE_NAME);
-
-    # TODO -- is this right? Do we want to add EVERY path in @INC to the command line?
-    foreach my $inc (reverse @INC) {
-        push(@cmd, "-I$inc")
-            unless (ref($inc));     # skip any hooks in @INC
-                                    # see https://perldoc.perl.org/functions/require#:~:text=hooks
-    }
-    push(@cmd, "-MPerl::Tidy::Guarantee::ExcludeCOPs=$exportstubs_tempfile");
-    push(@cmd, "-MData::Dumper");
-    push(@cmd, '-e', 'print Dumper \%Perl::Tidy::Guarantee::ExportStubs::export_stubs, \%Perl::Tidy::Guarantee::ExportStubs::do_not_stub');
-
-    # Here we use open(..., '-|') in place of IPC::Open3, because we only care about STDOUT in this
-    # case. We want STDERR to go straight to the end user, uninterrupted, and we don't need to pipe
-    # anything into STDIN.
-    my $pid = open(my $chld_stdout, '-|', @cmd)
-        or die "Unable to start child process: $!\n";
-
-    local $SIG{PIPE} = 'IGNORE';
-
-    local $INPUT_RECORD_SEPARATOR = undef;      # slurp all the lines at once
-    my $dumper_output = <$chld_stdout>;
-
-    waitpid( $pid, 0 );
-
-    # I don't think File::Temp::cleanup() will throw an error if we unlink the temp file early.
-    unlink($exportstubs_tempfile);
-
-    return $dumper_output;
+    return $text_out;
 }

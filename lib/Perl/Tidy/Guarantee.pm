@@ -57,6 +57,9 @@ sub tidy_compare {
 sub _generate_optree {
     my ($perl_source, $filename) = @_;
 
+    # used only by t/exportstubs_Storable.t
+    my $is_test_mode = (ref($perl_source) eq '--testing only--');
+
     my $exportstubs_tempfile = Perl::Tidy::Guarantee::ExportStubs::_write_to_temp_file();
 
     my @cmd = ($EXECUTABLE_NAME);
@@ -66,8 +69,27 @@ sub _generate_optree {
             unless (ref($inc));     # skip any hooks in @INC
                                     # see https://perldoc.perl.org/functions/require#:~:text=hooks
     }
-    push(@cmd, "-MO=Concise");
+    push(@cmd, "-MO=Concise")
+        if (!$is_test_mode);
     push(@cmd, "-MPerl::Tidy::Guarantee::ExcludeCOPs=$exportstubs_tempfile");
+    if ($is_test_mode) {
+        push(@cmd, '-MData::Dumper');
+        push(@cmd, '-e', 'print Dumper \%Perl::Tidy::Guarantee::ExportStubs::export_stubs, \%Perl::Tidy::Guarantee::ExportStubs::do_not_stub');
+
+        if (0) {
+            # output a command-line string that can be copy-n-pasted directly into the shell
+            use Data::Dumper ();
+            foreach (@cmd) {
+                if (/[ \t'"\\]/) {
+                    print Data::Dumper::_quote($_), " ";
+                } else {
+                    print "$_ ";
+                }
+            }
+            print "\n";
+            exit;
+        }
+    }
 
     my $chld_err = Symbol::gensym();
     my $pid = IPC::Open3::open3(my $chld_in, my $chld_out, $chld_err,
@@ -80,7 +102,8 @@ sub _generate_optree {
     # @cmd). Honestly though, it seems like it'd be pretty weird to read from STDIN during a
     # BEGIN {} block.
     local $SIG{PIPE} = 'IGNORE';
-    print $chld_in $perl_source;
+    print $chld_in $perl_source
+        if (!$is_test_mode);
     close $chld_in;
 
     local $INPUT_RECORD_SEPARATOR = undef;      # slurp all the lines at once

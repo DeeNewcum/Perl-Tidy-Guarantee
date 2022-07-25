@@ -15,7 +15,7 @@ package Perl::Tidy::Guarantee::ExcludeCOPs;
 use strict;
 use warnings;
 
-use B::Concise;
+use B::Concise ();
 
 # Suppress output of COPs when running B::Concise.
 #
@@ -162,7 +162,7 @@ sub stub_one_symbol {
         $sigil = $1;
     } elsif ($symbol =~ s/::[\$](?=[^:]+$)/::/s) {
         # we also allow the weird syntax of placing the sigil just after the final pair of colons
-        # (because this makes the "foreach my $arg (@_)" statement above simpler)
+        # (because this makes the "foreach my $arg (@_)" statement above much simpler)
         $sigil = $1;
     }
 
@@ -338,6 +338,10 @@ sub INC_hook {
 
     (my $module_name = $filename) =~ s#[/\\]#::#g;
     $module_name =~ s/\.pm$//;
+
+    # Never ever stub Data::Dumper -- t/exportstubs_Storable.t needs Data::Dumper to actually
+    # function.
+    return if ($module_name eq 'Data::Dumper');
 
     return if ($Perl::Tidy::Guarantee::ExportStubs::do_not_stub{$module_name});
 
