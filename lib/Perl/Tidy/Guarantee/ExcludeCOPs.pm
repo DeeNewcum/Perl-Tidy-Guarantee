@@ -255,20 +255,6 @@ our $is_enabled = 1;
 # (more precisely, "use strict everything-in-@list-except-for-'subs'")
 
 
-# ================ why I stopped working on this potential solution ================================
-# While this solution works when trying to compile things that look like barewords (but might
-# actually be a call to a previously-exported-sub), it does *not* work for direct calls like
-# Foo::Bar::method().
-#
-# (NOTE that this may not be sufficient reason to abandon this potential solution, because it
-# greatly reduces the amount of work that needs to be put into %stub_exports before
-# Perl::Tidy::Guarantee can be successfully used, so it DOES seem to move us towards the goal)
-
-# ================ why I stopped working on this potential solution ================================
-# It also didn't work when code read something like "bareword qw(foo bar);" (which seems to mimic a
-# pragma, but is nonethless an attempt at a subroutine call), for reasons that aren't clear to me.
-
-
 use strict;
 use warnings;
 
