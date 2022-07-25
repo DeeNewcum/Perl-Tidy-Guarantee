@@ -13,7 +13,7 @@ use Perl::Tidy::Guarantee ();
 use Perl::Tidy::Guarantee::ExportStubs();
 
 
-plan(2);
+plan(3);
 
 # Grab a copy of the initial contents of these two variables, so that we can ensure that each test
 # runs in an isolated manner.
@@ -41,6 +41,16 @@ EOF
 like(transfer_parent_to_child(),
      qr/\bone_one_one_one\b/s,
      'add_exportstubs() works');
+
+
+# ---------------- check that delete_exportstub() works
+restore_initial_contents();
+
+Perl::Tidy::Guarantee::delete_exportstub('Date::Calc');
+
+unlike(transfer_parent_to_child(),
+     qr/\bone_one_one_one\b/s,
+     'delete_exportstub() works');
 
 exit;
 
