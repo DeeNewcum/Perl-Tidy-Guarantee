@@ -49,7 +49,7 @@ restore_initial_contents();
 Perl::Tidy::Guarantee::delete_exportstub('Date::Calc');
 
 unlike(transfer_parent_to_child(),
-     qr/\bone_one_one_one\b/s,
+     qr/\bDecode_Date_EU2\b/,
      'delete_exportstub() works');
 
 exit;
