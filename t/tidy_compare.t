@@ -4,7 +4,7 @@ use warnings;
 use Test2::V0;
 use Test2::Tools::Exception qw(dies lives);
 
-use Perl::Tidy::Guarantee;
+use Perl::Tidy::Guarantee ();
 
 plan(4);
 

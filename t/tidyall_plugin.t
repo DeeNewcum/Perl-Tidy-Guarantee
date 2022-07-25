@@ -4,10 +4,10 @@ use warnings;
 use Test2::V0;
 use Test2::Tools::Exception qw(dies lives);
 
-use Code::TidyAll;
-use Code::TidyAll::Plugin::PerlTidyGuarantee;
+use Code::TidyAll ();
+use Code::TidyAll::Plugin::PerlTidyGuarantee ();
 use File::Temp ();
-use Test::MockModule;
+use Test::MockModule ();
 
 plan(2);
 

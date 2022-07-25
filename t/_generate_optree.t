@@ -3,7 +3,7 @@ use warnings;
 
 use Test2::V0;
 
-use Perl::Tidy::Guarantee;
+use Perl::Tidy::Guarantee ();
 
 plan(2);
 
