@@ -174,7 +174,13 @@ sub _parse_export_stubs {
 sub add_exportstubs {
     my ($here_doc) = @_;
     my %new_exportstubs = _parse_export_stubs($here_doc);
-    die "TODO -- merge \%new_exportstubs into \%export_stubs using... Hash::Merge?";
+
+    # Merge %new_exportstubs into %export_stubs.
+    while (my ($module, $stubs) = each %new_exportstubs) {
+        while (my ($symbol, $value) = each %$stubs) {
+            $export_stubs{$module}{$symbol} = $value;
+        }
+    }
 }
 
 

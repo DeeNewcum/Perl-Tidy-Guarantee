@@ -13,7 +13,7 @@ use Perl::Tidy::Guarantee ();
 use Perl::Tidy::Guarantee::ExportStubs();
 
 
-plan(1);
+plan(2);
 
 # Grab a copy of the initial contents of these two variables, so that we can ensure that each test
 # runs in an isolated manner.
@@ -22,12 +22,25 @@ our %initial_do_not_stub  = %Perl::Tidy::Guarantee::ExportStubs::do_not_stub;
 
 
 
-# confirm that transfer_parent_to_child() all by itself works
+# ---------------- check that transfer_parent_to_child() all by itself works
 restore_initial_contents();
+
 like(transfer_parent_to_child(),
-     qr/\bDecode_Date_EU2\b/,
+     qr/^\$VAR1 = .*\bDecode_Date_EU2\b/s,
      'transfer_parent_to_child() by itself');
 
+
+# ---------------- check that add_exportstubs() works
+restore_initial_contents();
+
+Perl::Tidy::Guarantee::add_exportstubs(<<'EOF');
+Foo::Bar
+    one_one_one_one
+EOF
+
+like(transfer_parent_to_child(),
+     qr/\bone_one_one_one\b/s,
+     'add_exportstubs() works');
 
 exit;
 
