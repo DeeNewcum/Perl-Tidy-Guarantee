@@ -5,6 +5,10 @@
 #   perl -MO=Concise -MPerl::Tidy::Guarantee::ExcludeCOPs=export_stubs.bin foobar.pl
 
 
+use Autoload::AUTOCAN ();       # Unfortunately AUTOLOAD's implementation is very complicated. I'd
+                                # rather not do it myself.
+use B::Concise ();
+
 use Perl::Tidy::Guarantee::ExportStubs ();
 
 
@@ -15,7 +19,6 @@ package Perl::Tidy::Guarantee::ExcludeCOPs;
 use strict;
 use warnings;
 
-use B::Concise ();
 
 # Suppress output of COPs when running B::Concise.
 #
@@ -155,6 +158,16 @@ sub import {
 
         # also generate a stub sub inside the module's package
         stub_one_symbol("${callee_pkg}::$symbol", $suffix);
+        if ($suffix eq '=new') {
+            # Setup Autoload::AUTOCAN inside $callee_pkg, so that all requested methods can be
+            # autoloaded.
+            no strict 'refs';
+            # check if it's already loaded in that package
+            if (!$callee_pkg->can('AUTOCAN')) {
+                eval "package $callee_pkg; use Autoload::AUTOCAN;";
+                *{"${callee_pkg}::AUTOCAN"} = \&AUTOCAN;
+            }
+        }
     }
 }
 
@@ -192,6 +205,15 @@ sub stub_one_symbol {
 sub stub_new {
     my ($pkg) = @_;
     return bless {}, $pkg;
+}
+
+
+# see https://metacpan.org/pod/Autoload::AUTOCAN
+sub AUTOCAN {
+    my ($self, $method) = @_;
+    # We have a choice here about whether the specified method should be autoloaded. We ALWAYS
+    # answer "yes".
+    return sub {};
 }
 
 
