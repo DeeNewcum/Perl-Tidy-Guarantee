@@ -61,10 +61,10 @@ our $is_enabled = 0;
 
 
 # ================ why I stopped working on this potential solution ================================
-# This is THE definition of "falling down a rabbit hole" -- it turns out that %stub_exports needs to
+# This is THE definition of "falling down a rabbit hole" -- it turns out that %export_stubs needs to
 # be filled out for MANY different CPAN modules (and private company-internal-only modules too!!).
 # This means that 1) for our team's purposes, the total amount of work required to fill out
-# %stub_exports could potentially be very large (and it's probably difficult to estimate, to boot).
+# %export_stubs could potentially be very large (and it's probably difficult to estimate, to boot).
 # And 2) for public use of this module, it would require end-users to do some cumbersome preliminary
 # work before they could ever properly use this module, and I'm not sure many people would want to
 # do that (even IF we communicated that caveat up front in huge red bold flashing text, which,
@@ -102,7 +102,7 @@ sub INC_hook {
 
     # 1) At a bare minimum, modules must return true. 2) If a version check is requested, they
     # must declare the proper package name and have some kind of [correct?] version number.
-    # 3) If a package is found within %stub_exports, then we want to import() some symbols into
+    # 3) If a package is found within %export_stubs, then we want to import() some symbols into
     # the correct package.
     my $prepend_text = <<"EOF";
 package $module_name;
@@ -130,15 +130,15 @@ sub import {
     #use Data::Dumper;
     #die Dumper [$pkg, $callpkg, \@_, \%args];
 
-    return unless ($Perl::Tidy::Guarantee::ExportStubs::stub_exports{$pkg});
+    return unless ($Perl::Tidy::Guarantee::ExportStubs::export_stubs{$pkg});
 
     if (@_ == 0) {
-        push @_, keys(%{$Perl::Tidy::Guarantee::ExportStubs::stub_exports{$pkg}});
+        push @_, keys(%{$Perl::Tidy::Guarantee::ExportStubs::export_stubs{$pkg}});
     }
 
     foreach my $symbol (@_) {
         if ($symbol eq ':all') {
-            push @_, keys(%{$Perl::Tidy::Guarantee::ExportStubs::stub_exports{$pkg}});
+            push @_, keys(%{$Perl::Tidy::Guarantee::ExportStubs::export_stubs{$pkg}});
         }
         # also generate a stub sub inside the main package
         stub_one_symbol("${pkg}::$symbol");
@@ -146,7 +146,7 @@ sub import {
 
     foreach my $arg (@_) {
         my $symbol = $arg;
-        next unless (exists $Perl::Tidy::Guarantee::ExportStubs::stub_exports{$pkg}{$symbol});
+        next unless (exists $Perl::Tidy::Guarantee::ExportStubs::export_stubs{$pkg}{$symbol});
         #print STDERR "exporting ${pkg}::$symbol into $callpkg\n";
         stub_one_symbol("${callpkg}::$symbol");
     }
@@ -335,7 +335,7 @@ sub INC_hook {
 
     # 1) At a bare minimum, modules must return true. 2) If a version check is requested, they
     # must declare the proper package name and have some kind of [correct?] version number.
-    # 3) If a package is found within %stub_exports, then we want to import() some symbols into
+    # 3) If a package is found within %export_stubs, then we want to import() some symbols into
     # the correct package.
     my $prepend_text = <<"EOF";
 package $module_name;
