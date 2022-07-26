@@ -166,6 +166,8 @@ sub stub_one_symbol {
         $sigil = $1;
     }
 
+    #print STDERR "creating stub for $symbol\n";
+
     no strict 'refs';
     if ($sigil eq '$') {
         *{$symbol} = \'';
