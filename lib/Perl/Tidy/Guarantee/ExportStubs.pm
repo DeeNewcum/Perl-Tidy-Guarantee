@@ -70,7 +70,7 @@ Net::EmptyPort
     empty_port check_port
 
 File::Slurper
-    >read_binary >read_text >read_lines >write_binary >write_text >read_dir
+    read_binary=OK read_text=OK read_lines=OK write_binary=OK write_text=OK read_dir=OK
 
 FormValidator::Lite::Constraint
     rule file_rule alias delsp
@@ -81,13 +81,13 @@ Types::Standard
     RegexpRef GlobRef FileHandle ArrayRef HashRef ScalarRef Object Maybe Map Tuple
 
 Module::Signature
-    >sign >verify >$SIGNATURE >$AUTHOR >$KeyServer >$Cipher >$Preamble
+    sign=OK verify=OK $SIGNATURE=OK $AUTHOR=OK $KeyServer=OK $Cipher=OK $Preamble=OK
 
 Carp::Assert
     assert affirm should shouldnt DEBUG
 
 Readonly
-    Readonly >Scalar >Array >Hash >Scalar1 >Array1 >Hash1
+    Readonly Scalar=OK Array=OK Hash=OK Scalar1=OK Array1=OK Hash1=OK
 
 Test::More
     ok use_ok require_ok is isnt like unlike is_deeply cmp_ok skip todo todo_skip pass fail eq_array
@@ -128,8 +128,9 @@ EOF
 #exit;
 
 
-# symbol prefixes:
-#       >       is in @EXPORT_OK
+# symbol suffixes:
+#       =OK         should be in @EXPORT_OK
+#       =new        should be treated like a FooBar->new() stub, in that it should return a blessed reference
 sub _parse_export_stubs {
     my ($here_doc) = @_;
 
@@ -157,10 +158,15 @@ sub _parse_export_stubs {
             }
 
             foreach my $token (@tokens) {
-                if ($token =~ s/^>//) {
-                    $ret{$current_module}{$token} = 'ok';
+                if ($token eq 'new') {
+                    # automatically use stub_new() for subs titled 'new'
+                    $token .= '=new';
+                }
+
+                if ($token =~ s/=.*//) {
+                    $ret{$current_module}{$token} = $&;
                 } else {
-                    $ret{$current_module}{$token} = undef;
+                    $ret{$current_module}{$token} = '';
                 }
             }
         }

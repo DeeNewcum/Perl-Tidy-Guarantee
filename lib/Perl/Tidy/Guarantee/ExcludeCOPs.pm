@@ -124,38 +124,44 @@ EOF
 
 
 sub import {
-    my $pkg = shift;
-    my $callpkg = caller(1);
+    my $callee_pkg = shift;
+    my $caller_pkg = caller(1);
 
     #use Data::Dumper;
-    #die Dumper [$pkg, $callpkg, \@_, \%args];
+    #die Dumper [$callee_pkg, $caller_pkg, \@_, \%args];
 
-    return unless ($Perl::Tidy::Guarantee::ExportStubs::export_stubs{$pkg});
+    return unless ($Perl::Tidy::Guarantee::ExportStubs::export_stubs{$callee_pkg});
 
     if (@_ == 0) {
-        push @_, keys(%{$Perl::Tidy::Guarantee::ExportStubs::export_stubs{$pkg}});
+        push @_, keys(%{$Perl::Tidy::Guarantee::ExportStubs::export_stubs{$callee_pkg}});
     }
 
+    # pre-process the arguments, and expand a few things
     foreach my $symbol (@_) {
         if ($symbol eq ':all') {
-            push @_, keys(%{$Perl::Tidy::Guarantee::ExportStubs::export_stubs{$pkg}});
+            push @_, keys(%{$Perl::Tidy::Guarantee::ExportStubs::export_stubs{$callee_pkg}});
         }
-        # also generate a stub sub inside the main package
-        stub_one_symbol("${pkg}::$symbol");
     }
 
     foreach my $arg (@_) {
         my $symbol = $arg;
-        next unless (exists $Perl::Tidy::Guarantee::ExportStubs::export_stubs{$pkg}{$symbol});
-        #print STDERR "exporting ${pkg}::$symbol into $callpkg\n";
-        stub_one_symbol("${callpkg}::$symbol");
+        next unless (exists $Perl::Tidy::Guarantee::ExportStubs::export_stubs{$callee_pkg}{$symbol});
+        my $suffix = $Perl::Tidy::Guarantee::ExportStubs::export_stubs{$callee_pkg}{$symbol};
+
+        #print STDERR "exporting ${callee_pkg}::$symbol into $caller_pkg\n";
+        if ($suffix ne '=new') {        # new()-style subs should never be exported
+            stub_one_symbol("${caller_pkg}::$symbol", $suffix);
+        }
+
+        # also generate a stub sub inside the module's package
+        stub_one_symbol("${callee_pkg}::$symbol", $suffix);
     }
 }
 
 
 # $symbol should contain both the package and the final symbol name
 sub stub_one_symbol {
-    my ($symbol) = @_;
+    my ($symbol, $suffix) = @_;
     my $sigil = '';
 
     if ($symbol =~ s/^[\$]//) {
@@ -172,8 +178,20 @@ sub stub_one_symbol {
     if ($sigil eq '$') {
         *{$symbol} = \'';
     } else {
-        *{$symbol} = sub {};
+        if ($suffix eq '=new') {
+            *{$symbol} = \&stub_new;
+        } else {
+            *{$symbol} = sub {};
+        }
     }
+}
+
+
+# Whenever a =new function is called, return a blessed reference, so that the "other code" can use
+# $self to call other functions.
+sub stub_new {
+    my ($pkg) = @_;
+    return bless {}, $pkg;
 }
 
 
