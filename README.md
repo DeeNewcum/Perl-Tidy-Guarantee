@@ -92,8 +92,46 @@ To provide support for private organizations who have their own
 [DarkPAN](https://www.olafalders.com/2019/02/19/about-the-various-pans/) modules, we provide a way to
 pass additional export-stub information to us.
 
-TODO -- Write documentation for how it's expected that their custom DarkPAN export-stub information
-will end up getting loaded under Code::TidyAll.
+## How to get your code loaded within tidyall
+
+Create a new module and put it somewhere that's within your `@INC` or $PERL5LIB. Copy-and-paste
+something like this into `Code/TidyAll/Plugin/CompanyName_stubs.pm`:
+
+    package Code::TidyAll::Plugin::CompanyName_stubs;
+
+    use strict;
+    use warnings;
+
+    # While this line pulls in a lot of methods, it really is just needed so that
+    # Code::TidyAll can successfully load this module from tidyall.ini.
+    use parent 'Code::TidyAll::Plugin';
+
+    use Perl::Tidy::Guarantee;
+
+
+    add_exportstubs(<<'EOF');
+    # ------------------------------------------------------------------------------
+
+    CompanyName::Logger
+        log
+
+    CompanyName::ConnectToDB
+        dbconnect
+
+    # (adjust this text as needed for your custom stubs)
+
+    # ------------------------------------------------------------------------------
+    EOF
+
+
+    1;
+
+Then you need to cause your custom-stub module to be loaded by Code::TidyAll. To do that, simply add
+this to your `tidyall.ini` or `.tidyallrc`:
+
+    [CompanyName_stubs]
+    # the above line should cause the information within Code::TidyAll::Plugin::CompanyName_stubs to
+    # be loaded
 
 ## add\_exportstubs( $here\_doc )
 
