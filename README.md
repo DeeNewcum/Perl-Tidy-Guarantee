@@ -52,9 +52,9 @@ production.
 
 ## What does PPI say?
 
-Perl::Tidy doesn't do the parsing of Perl code on its own, as this is a [very difficult
-problem](https://everything2.com/title/Only+perl+can+parse+Perl). Instead, it relies on [PPI](https://metacpan.org/pod/PPI) to do
-the parsing for it.
+Perl::Tidy doesn't do the parsing of Perl code on its own, as this is a [VERY difficult
+problem](https://metacpan.org/pod/PPI#Background). Instead, it relies on [PPI](https://metacpan.org/pod/PPI) to do the parsing for it. PPI is the
+recognized leader in parsing Perl code, outside of the Perl interpreter itself.
 
 [PPI::Tokenizer](https://metacpan.org/pod/PPI%3A%3ATokenizer) says "The Tokenizer uses an immense amount of heuristics, guessing and cruft …
 It is by far the most complex and twisty piece of perl I've ever written that is actually still
@@ -69,7 +69,7 @@ stage](https://metacpan.org/about/faq#whatdoestheriverstageindicate) four, and I
 in CPAN that call [filter\_add()](https://metacpan.org/pod/perlfilter), one being a river stage three ([Devel::Declare](https://metacpan.org/pod/Devel%3A%3ADeclare)). So
 this isn't necessarily a small issue. (however, it's unclear whether source filters ever modify code
 beyond the file that directly `use`d them, whether their influence ever cascades to "files that use
-files that use source filters" or beyond)
+files that use source filters")
 
 # HOW IT WORKS
 
@@ -150,6 +150,25 @@ Clears the current export-stub information for the specified module. While it's 
 DarkPAN modules, it does work with any module's information.
 
 Returns a boolean indicating whether that module's entry could be deleted.
+
+# CURRENT STATUS
+
+At this point, I've got 497 SLOC written across 9 Perl files and 103 commits, and I started
+publishing this project 23 days ago. And version 1 is only 80% complete.
+
+PPI says presciently "Using an embedded perl parser was widely considered to be the most likely
+avenue for finding a solution to parsing Perl. It has been investigated from time to time, but
+attempts have generally failed or suffered from sufficiently bad corner cases that they were
+abandoned."
+
+Here. Be. Dragons.
+
+Blithely ignoring that sage advise, I forged ahead, trying to... literally use an embedded Perl
+parser to double-check Perl::Tidy's work.
+
+Currently, I feel that I can "see the light at the end of the tunnel" — I feel I'm close to being
+able to wrap this project up. However, **do note** that I've felt I could see the light at the end of
+the tunnel for 30+ hours now, so take that with a grain of salt.
 
 # LICENSE
 

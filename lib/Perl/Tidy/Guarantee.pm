@@ -198,9 +198,9 @@ production.
 
 =head2 What does PPI say?
 
-Perl::Tidy doesn't do the parsing of Perl code on its own, as this is a L<very difficult
-problem|https://everything2.com/title/Only+perl+can+parse+Perl>. Instead, it relies on L<PPI> to do
-the parsing for it.
+Perl::Tidy doesn't do the parsing of Perl code on its own, as this is a L<VERY difficult
+problem|PPI/"Background">. Instead, it relies on L<PPI> to do the parsing for it. PPI is the
+recognized leader in parsing Perl code, outside of the Perl interpreter itself.
 
 L<PPI::Tokenizer> says "The Tokenizer uses an immense amount of heuristics, guessing and cruft …
 It is by far the most complex and twisty piece of perl I've ever written that is actually still
@@ -215,7 +215,7 @@ stage|https://metacpan.org/about/faq#whatdoestheriverstageindicate> four, and I 
 in CPAN that call L<filter_add()|perlfilter>, one being a river stage three (L<Devel::Declare>). So
 this isn't necessarily a small issue. (however, it's unclear whether source filters ever modify code
 beyond the file that directly C<use>d them, whether their influence ever cascades to "files that use
-files that use source filters" or beyond)
+files that use source filters")
 
 =head1 HOW IT WORKS
 
@@ -318,6 +318,25 @@ Clears the current export-stub information for the specified module. While it's 
 DarkPAN modules, it does work with any module's information.
 
 Returns a boolean indicating whether that module's entry could be deleted.
+
+=head1 CURRENT STATUS
+
+At this point, I've got 497 SLOC written across 9 Perl files and 103 commits, and I started
+publishing this project 23 days ago. And version 1 is only 80% complete.
+
+PPI says presciently "Using an embedded perl parser was widely considered to be the most likely
+avenue for finding a solution to parsing Perl. It has been investigated from time to time, but
+attempts have generally failed or suffered from sufficiently bad corner cases that they were
+abandoned."
+
+Here. Be. Dragons.
+
+Blithely ignoring that sage advise, I forged ahead, trying to... literally use an embedded Perl
+parser to double-check Perl::Tidy's work.
+
+Currently, I feel that I can "see the light at the end of the tunnel" — I feel I'm close to being
+able to wrap this project up. However, B<do note> that I've felt I could see the light at the end of
+the tunnel for 30+ hours now, so take that with a grain of salt.
 
 =head1 LICENSE
 
